@@ -1,9 +1,7 @@
 name: containr:build
 
 on:
-  pull_request:
-    paths:
-      - 'containr/**'
+  pull_request
 
 jobs:
   publish:
