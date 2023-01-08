@@ -19,10 +19,7 @@ jobs:
         with:
           node-version: 16
       - run: npm install
-        working-directory: ./containr
       - run: npm run build
-        working-directory: ./containr
       - run: npm publish
-        working-directory: ./containr
         env:
           NODE_AUTH_TOKEN: ${{secrets.SECRET_TOKEN}}
