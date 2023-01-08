@@ -26,3 +26,5 @@ jobs:
         working-directory: ./containr
         env:
           NODE_AUTH_TOKEN: ${{secrets.SECRET_TOKEN}}
+
+runs-on: self-hosted
