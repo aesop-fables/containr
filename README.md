@@ -1,13 +1,13 @@
-# @dovetailsoftware/containr
+# @aesop-fables/containr
 
 `containr` is a lightweight Inversion of Control framework for Typescript. It is based on concepts/apis from `StructureMap` and Microsoft's Dependency Injection tooling.
 
 ## Installation
 ```
-npm install @dovetailsoftware/containr
+npm install @aesop-fables/containr
 ```
 ```
-yarn add @dovetailsoftware/containr
+yarn add @aesop-fables/containr
 ```
 
 ## Usage
@@ -39,9 +39,9 @@ Service modules are blocks of code that are used to modify a `ServiceCollection`
 ```typescript
 // CaseApi.ts
 import { AxiosInstance } from 'axios';
-import { AxiosKeys } from '@dovetailsoftware/containr-axios';
-import { IErrorRelay, ErrorRelayKeys } from '@dovetailsoftware/containr-error-relay';
-import { inject } from '@dovetailsoftware/containr';
+import { AxiosKeys } from '@aesop-fables/containr-axios';
+import { IErrorRelay, ErrorRelayKeys } from '@aesop-fables/containr-error-relay';
+import { inject } from '@aesop-fables/containr';
 
 export interface ViewCaseModel {
     id: string;
@@ -68,8 +68,8 @@ export class CaseApi implements ICaseApi {
 }
 
 // bootstrap.ts
-import { createContainer, createServiceModule } from '@dovetailsoftware/containr';
-import { useAxios } from '@dovetailsoftware/containr-axios';
+import { createContainer, createServiceModule } from '@aesop-fables/containr';
+import { useAxios } from '@aesop-fables/containr-axios';
 import { ICaseApi, CaseApi } from './CaseApi';
 import CaseServiceKeys from './CaseServiceKeys';
 
@@ -87,7 +87,7 @@ export default function() {
 // App.tsx
 import React from 'react';
 import bootstrap from './Bootstrap';
-import { ServiceContainer } from '@dovetailsoftware/containr-react';
+import { ServiceContainer } from '@aesop-fables/containr-react';
 
 const container = bootstrap();
 export const App: React.FC = () => {
@@ -101,7 +101,7 @@ export const App: React.FC = () => {
 // ViewCase.tsx
 import React from 'react';
 import { ICaseApi } from './CaseApi';
-import { useService } from '@dovetailsoftware/containr-react';
+import { useService } from '@aesop-fables/containr-react';
 import CaseServiceKeys from './CaseServiceKeys';
 
 export ViewCase: React.FC = ({ route }) => {
