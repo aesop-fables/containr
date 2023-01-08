@@ -9,7 +9,7 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       contents: read
       packages: write
@@ -26,5 +26,3 @@ jobs:
         working-directory: ./containr
         env:
           NODE_AUTH_TOKEN: ${{secrets.SECRET_TOKEN}}
-
-runs-on: self-hosted

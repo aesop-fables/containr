@@ -1,13 +1,11 @@
 name: containr:build
 
 on:
-  pull_request:
-    paths:
-      - 'containr/**'
+  pull_request
 
 jobs:
-  publish:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: self-hosted
     permissions:
       contents: read
       packages: write
@@ -17,8 +15,4 @@ jobs:
         with:
           node-version: 16
       - run: npm install
-        working-directory: ./containr
       - run: npm run build
-        working-directory: ./containr
-
-runs-on: self-hosted
