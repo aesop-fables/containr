@@ -18,5 +18,4 @@ jobs:
         working-directory: ./containr
       - run: npm run build
         working-directory: ./containr
-
-runs-on: self-hosted
+    runs-on: self-hosted
