@@ -6,7 +6,7 @@ import {
   inject,
   IServiceContainer,
   IServiceRegistry,
-  Newable
+  Newable,
 } from './Container';
 import {
   IServiceModule,
@@ -39,5 +39,5 @@ export {
   ServiceModule,
   ServiceModuleWithOptions,
   inject,
-  Newable
+  Newable,
 };
