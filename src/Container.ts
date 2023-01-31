@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Disposable } from './Disposable';
 import { Stack } from './Stack';
 
