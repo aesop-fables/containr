@@ -82,7 +82,7 @@ export class ArrayDependency<T> implements IConfiguredDependency<T[]> {
   }
 }
 
-const injectMetadataKey = Symbol('@3nickels/data-projections/dependency-injection/inject');
+const injectMetadataKey = Symbol('@aesop-fables/containr/inject');
 
 export type Newable<T> = new (...args: any[]) => T;
 
