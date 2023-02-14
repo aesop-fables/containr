@@ -1,5 +1,6 @@
 import { Disposable } from './Disposable';
 import {
+  getDependencyMetadata,
   ServiceCollection,
   ServiceContainer,
   ServiceContainerStack,
@@ -29,6 +30,7 @@ export {
   createServiceModule,
   createServiceModuleWithOptions,
   Disposable,
+  getDependencyMetadata,
   IActivator,
   IServiceContainer,
   IServiceModule,
