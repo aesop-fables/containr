@@ -83,6 +83,12 @@ export class ArrayDependency<T> implements IConfiguredDependency<T[]> {
 
 const injectMetadataKey = Symbol('@aesop-fables/containr/inject');
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+export const getDependencyMetadata = (constructor: Object) => {
+  const metadata = (Reflect.getMetadata(injectMetadataKey, constructor) || []) as IDependencyMetadata[];
+  return metadata;
+};
+
 export type Newable<T> = new (...args: any[]) => T;
 
 interface IDependencyMetadata {
@@ -94,7 +100,7 @@ interface IDependencyMetadata {
 export function inject(dependencyKey: string) {
   // eslint-disable-next-line @typescript-eslint/ban-types
   return (target: Object, propertyKey: string | symbol, parameterIndex: number): void => {
-    const params = (Reflect.getMetadata(injectMetadataKey, target) || []) as IDependencyMetadata[];
+    const params = getDependencyMetadata(target);
     params.push({ dependencyKey, parameterIndex, propertyKey } as IDependencyMetadata);
 
     Reflect.defineMetadata(injectMetadataKey, params, target);
@@ -103,7 +109,7 @@ export function inject(dependencyKey: string) {
 
 export function createAutoWireFactory<T>(constructor: Newable<T>): ValueFactoryDelegate<T> {
   return (container: IServiceContainer) => {
-    const metadata = Reflect.getMetadata(injectMetadataKey, constructor);
+    const metadata = getDependencyMetadata(constructor);
     if (!metadata || metadata.length === 0) {
       return new constructor();
     }
