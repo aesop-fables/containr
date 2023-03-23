@@ -1,4 +1,5 @@
-import { IServiceContainer, ServiceCollection } from './Container';
+import { IServiceContainer } from './IServiceContainer';
+import { ServiceCollection } from './ServiceCollection';
 
 export type ServiceModuleMiddleware = (services: ServiceCollection) => void;
 export type ServiceModuleMiddlewareWithOptions<Options> = (services: ServiceCollection, options: Options) => void;

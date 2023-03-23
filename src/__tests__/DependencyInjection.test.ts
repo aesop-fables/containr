@@ -1,6 +1,14 @@
 import 'reflect-metadata';
-import { BootstrappingServices, createContainer, IActivator, IServiceModule } from '../Bootstrapping';
-import { ConfiguredDependency, inject, IServiceRegistry, ServiceCollection } from '../Container';
+import {
+  BootstrappingServices,
+  createContainer,
+  ConfiguredDependency,
+  inject,
+  IServiceRegistry,
+  ServiceCollection,
+  IActivator,
+  IServiceModule,
+} from '..';
 import { mock } from 'jest-mock-extended';
 import { Disposable } from '../Disposable';
 

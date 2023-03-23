@@ -5,8 +5,8 @@ import {
   createServiceModule,
   IActivator,
   IServiceModule,
-} from '../Bootstrapping';
-import { ServiceCollection } from '../Container';
+  ServiceCollection,
+} from '..';
 
 class TestActivator implements IActivator {
   isActivated = false;
