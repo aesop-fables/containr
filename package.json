@@ -1,6 +1,6 @@
 {
   "name": "@aesop-fables/containr",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Inversion of Control container for Typescript",
   "type": "commonjs",
   "exports": {

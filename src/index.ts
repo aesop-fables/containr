@@ -4,7 +4,7 @@ export * from './Container';
 export * from './Dependencies';
 export * from './Disposable';
 export * from './Metadata';
+export * from './Modules';
 export * from './IServiceContainer';
-export * from './ServiceCollection';
 export * from './Stack';
 export * from './Types';

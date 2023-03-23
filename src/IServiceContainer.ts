@@ -1,4 +1,5 @@
 import { Disposable } from './Disposable';
+import { IServiceModule } from './Modules';
 import { Newable } from './Types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -23,8 +24,9 @@ export interface IServiceContainer extends Disposable {
   /**
    * Creates a container by copying 1)the current configuration and 2) the previously resolved instances.
    * @param provenance Moniker for the child container
+   * @param overrides Collection of service modules for registering services in the child container
    */
-  createChildContainer(provenance: string): IServiceContainer;
+  createChildContainer(provenance: string, overrides?: IServiceModule[]): IServiceContainer;
   /**
    * Instantiates the specified class by resolving any dependencies found in the constuctor (using the @inject decorator).
    * @param clazz The class to instantiate

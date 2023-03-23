@@ -362,6 +362,27 @@ describe('Dependency Injection', () => {
         container.get<ISampleService>(testServiceKey);
         expect(nrInstantiations).toBe(2);
       });
+
+      test('Resolving an override', async () => {
+        // tODO -- implement this, publish it, consume from triginta, and inject the configured route
+        const testServiceKey = 'sample';
+        const id = '1234';
+        const services = new ServiceCollection();
+        services.register<ISampleService>(testServiceKey, () => new SampleService(id));
+
+        const testOverride: IServiceModule = {
+          name: 'overrides',
+          configureServices(services) {
+            services.register<string>(testServiceKey, id);
+          },
+        };
+
+        const container = services.buildContainer();
+        const childContainer = container.createChildContainer('test', [testOverride]);
+
+        const service = childContainer.get<ISampleService>(testServiceKey);
+        expect(typeof service).toBe('string');
+      });
     });
   });
 });

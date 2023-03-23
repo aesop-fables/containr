@@ -1,18 +1,11 @@
+import { ServiceCollection } from './Container';
 import { IServiceContainer } from './IServiceContainer';
-import { ServiceCollection } from './ServiceCollection';
-
-export type ServiceModuleMiddleware = (services: ServiceCollection) => void;
-export type ServiceModuleMiddlewareWithOptions<Options> = (services: ServiceCollection, options: Options) => void;
-
-export type ServiceModuleMiddlewareWithOptionsFactory<Options> = (options: Options) => IServiceModule;
-
-/**
- * Represents a set of services to be registered in the IServiceContainer
- */
-export interface IServiceModule {
-  name: string;
-  configureServices: ServiceModuleMiddleware;
-}
+import {
+  IServiceModule,
+  ServiceModuleMiddleware,
+  ServiceModuleMiddlewareWithOptions,
+  ServiceModuleMiddlewareWithOptionsFactory,
+} from './Modules';
 
 /**
  * Represents a set of services to be registered in the IServiceContainer
