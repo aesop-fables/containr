@@ -14,7 +14,7 @@ export interface IDependencyMetadata {
 
 export function inject(dependencyKey: string) {
   // eslint-disable-next-line @typescript-eslint/ban-types
-  return (target: Object, propertyKey: string | symbol, parameterIndex: number): void => {
+  return (target: Object, propertyKey: string | symbol | undefined, parameterIndex: number): void => {
     const params = getDependencyMetadata(target);
     params.push({ dependencyKey, parameterIndex, propertyKey } as IDependencyMetadata);
 
