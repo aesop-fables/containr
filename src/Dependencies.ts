@@ -2,8 +2,15 @@ import { createAutoWireFactory } from './createAutoWireFactory';
 import { IServiceContainer, ValueFactoryDelegate } from './IServiceContainer';
 import { Newable } from './Types';
 
+export declare enum DependencyType {
+  Array,
+  Configured,
+  Unknown,
+}
+
 export interface IConfiguredDependency<T> {
   key: string;
+  type: DependencyType | string;
   isResolved(): boolean;
   resolveValue(container: IServiceContainer): T;
   clone(): IConfiguredDependency<T>;
@@ -23,6 +30,10 @@ export class ConfiguredDependency<T> implements IConfiguredDependency<T> {
       this.factory = () => value;
       this.value = value;
     }
+  }
+
+  get type(): DependencyType | string {
+    return DependencyType.Configured;
   }
 
   isResolved(): boolean {
@@ -57,6 +68,10 @@ export class ArrayDependency<T> implements IConfiguredDependency<T[]> {
 
   constructor(readonly key: string, private readonly values: IConfiguredDependency<T>[] = []) {}
 
+  get type(): DependencyType | string {
+    return DependencyType.Array;
+  }
+
   isResolved(): boolean {
     return this.resolved;
   }
@@ -81,6 +96,10 @@ export class ArrayDependency<T> implements IConfiguredDependency<T[]> {
 
 export class UnknownDependency<T> implements IConfiguredDependency<T> {
   constructor(readonly key: string, private readonly values: Record<string, IConfiguredDependency<any>>) {}
+
+  get type(): DependencyType | string {
+    return DependencyType.Unknown;
+  }
 
   isResolved(): boolean {
     return false;
