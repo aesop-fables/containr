@@ -1,4 +1,5 @@
-import { createAutoWireFactory } from './createAutoWireFactory';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { createAutoResolvingFactory } from './createAutoResolvingFactory';
 import { IServiceContainer, ValueFactoryDelegate } from './IServiceContainer';
 import { Newable } from './Types';
 
@@ -103,7 +104,9 @@ export class ArrayDependency<T> implements IDependency<T[]> {
   }
 
   push(clazz: Newable<T>): void {
-    this.values.push(new ConfiguredDependency(`${this.key}-${this.values.length}`, createAutoWireFactory<T>(clazz)));
+    this.values.push(
+      new ConfiguredDependency(`${this.key}-${this.values.length}`, createAutoResolvingFactory<T>(clazz)),
+    );
   }
 
   clone(): IDependency<T[]> {

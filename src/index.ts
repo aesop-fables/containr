@@ -1,5 +1,5 @@
 export * from './Bootstrapping';
-export * from './createAutoWireFactory';
+export * from './createAutoResolvingFactory';
 export * from './Container';
 export * from './Dependencies';
 export * from './Disposable';

@@ -2,7 +2,7 @@ import { IServiceContainer, ValueFactoryDelegate } from './IServiceContainer';
 import { getDependencyMetadata, IDependencyMetadata } from './Metadata';
 import { Newable } from './Types';
 
-export function createAutoWireFactory<T>(constructor: Newable<T>): ValueFactoryDelegate<T> {
+export function createAutoResolvingFactory<T>(constructor: Newable<T>): ValueFactoryDelegate<T> {
   return (container: IServiceContainer) => {
     const metadata = getDependencyMetadata(constructor);
     if (!metadata || metadata.length === 0) {

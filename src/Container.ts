@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createAutoWireFactory } from './createAutoWireFactory';
+import { createAutoResolvingFactory } from './createAutoResolvingFactory';
 import { IDependency, UnknownDependency, ConfiguredDependency, ArrayDependency } from './Dependencies';
 import { IServiceContainer, ValueFactoryDelegate } from './IServiceContainer';
 import { IServiceModule } from './Modules';
@@ -74,7 +74,7 @@ export class ServiceCollection {
    * @param clazz The class to auto-wire.
    */
   use<T>(key: string, clazz: Newable<T>): ServiceCollection {
-    return this.register(key, createAutoWireFactory<T>(clazz));
+    return this.register(key, createAutoResolvingFactory<T>(clazz));
   }
 
   /**
@@ -157,7 +157,7 @@ export class ServiceContainer implements IServiceContainer {
   }
 
   resolve<T>(clazz: Newable<T>): T {
-    const factory = createAutoWireFactory(clazz);
+    const factory = createAutoResolvingFactory(clazz);
     return factory(this);
   }
 
