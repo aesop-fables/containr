@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAutoWireFactory } from './createAutoWireFactory';
-import { IConfiguredDependency, UnknownDependency, ConfiguredDependency, ArrayDependency } from './Dependencies';
+import { IDependency, UnknownDependency, ConfiguredDependency, ArrayDependency } from './Dependencies';
 import { IServiceContainer, ValueFactoryDelegate } from './IServiceContainer';
 import { IServiceModule } from './Modules';
 import { Stack } from './Stack';
@@ -16,13 +16,13 @@ export type RegistryConstructor<T extends IServiceRegistry> = new () => T;
  * A collection of configured dependencies registered against unique keys.
  */
 export class ServiceCollection {
-  private values: Record<string, IConfiguredDependency<any>>;
+  private values: Record<string, IDependency<any>>;
 
   /**
    * Creates a new ServiceCollection
    * @param values Optional hash of configured dependencies (leave this unspecified in most cases).
    */
-  constructor(values?: Record<string, IConfiguredDependency<any>>) {
+  constructor(values?: Record<string, IDependency<any>>) {
     this.values = values ?? {};
   }
 
@@ -81,7 +81,7 @@ export class ServiceCollection {
    * Retrieves the underlying hash of configured dependencies.
    * @returns The underlying hash of configured dependencies.
    */
-  getValues(): Record<string, IConfiguredDependency<any>> {
+  getValues(): Record<string, IDependency<any>> {
     return this.values;
   }
 
@@ -150,7 +150,7 @@ export class ServiceCollection {
 }
 
 export class ServiceContainer implements IServiceContainer {
-  private readonly values: Record<string, IConfiguredDependency<any>>;
+  private readonly values: Record<string, IDependency<any>>;
 
   constructor(values: Record<string, any>, private parent?: IServiceContainer, private provenance?: string) {
     this.values = values;
@@ -171,7 +171,7 @@ export class ServiceContainer implements IServiceContainer {
       value = new UnknownDependency<T>(key, this.values);
     }
 
-    return (value as IConfiguredDependency<T>).resolveValue(this);
+    return (value as IDependency<T>).resolveValue(this);
   }
 
   get<T>(key: string): T;
@@ -297,18 +297,17 @@ export class ServiceContainer implements IServiceContainer {
   }
 
   destroy(key: string): void {
-    const dependency = this.values[key] as ConfiguredDependency<any>;
-    if (dependency && dependency.value) {
-      if (typeof dependency.value.dispose === 'function') {
-        dependency.value.dispose();
-      }
-
-      dependency.value = undefined;
+    // const dependency = this.values[key] as ConfiguredDependency<any>;
+    const dependency = this.values[key];
+    if (!dependency) {
+      return;
     }
+
+    dependency.destroy();
   }
 
   createChildContainer(provenance: string, overrides?: IServiceModule[]): IServiceContainer {
-    const values: Record<string, IConfiguredDependency<any>> = {};
+    const values: Record<string, IDependency<any>> = {};
     const keys = Object.entries(this.values)
       .filter(([, value]) => !value.isResolved())
       .map(([key]) => key);

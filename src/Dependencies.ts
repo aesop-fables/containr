@@ -8,15 +8,16 @@ export declare enum DependencyType {
   Unknown,
 }
 
-export interface IConfiguredDependency<T> {
+export interface IDependency<T> {
   key: string;
   type: DependencyType | string;
   isResolved(): boolean;
   resolveValue(container: IServiceContainer): T;
-  clone(): IConfiguredDependency<T>;
+  destroy(): void;
+  clone(): IDependency<T>;
 }
 
-export class ConfiguredDependency<T> implements IConfiguredDependency<T> {
+export class ConfiguredDependency<T> implements IDependency<T> {
   readonly key: string;
   factory: ValueFactoryDelegate<T>;
   value: T | undefined;
@@ -34,6 +35,18 @@ export class ConfiguredDependency<T> implements IConfiguredDependency<T> {
 
   get type(): DependencyType | string {
     return DependencyType.Configured;
+  }
+
+  destroy(): void {
+    if (this.value) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const value = this.value as any;
+      if (typeof value.dispose === 'function') {
+        value.dispose();
+      }
+
+      this.value = undefined;
+    }
   }
 
   isResolved(): boolean {
@@ -58,18 +71,22 @@ export class ConfiguredDependency<T> implements IConfiguredDependency<T> {
     }
   }
 
-  clone(): IConfiguredDependency<T> {
+  clone(): IDependency<T> {
     return new ConfiguredDependency(this.key, this.factory);
   }
 }
 
-export class ArrayDependency<T> implements IConfiguredDependency<T[]> {
+export class ArrayDependency<T> implements IDependency<T[]> {
   private resolved = false;
 
-  constructor(readonly key: string, private readonly values: IConfiguredDependency<T>[] = []) {}
+  constructor(readonly key: string, private readonly values: IDependency<T>[] = []) {}
 
   get type(): DependencyType | string {
     return DependencyType.Array;
+  }
+
+  destroy(): void {
+    this.values.forEach((x) => x.destroy());
   }
 
   isResolved(): boolean {
@@ -89,29 +106,31 @@ export class ArrayDependency<T> implements IConfiguredDependency<T[]> {
     this.values.push(new ConfiguredDependency(`${this.key}-${this.values.length}`, createAutoWireFactory<T>(clazz)));
   }
 
-  clone(): IConfiguredDependency<T[]> {
+  clone(): IDependency<T[]> {
     return new ArrayDependency<T>(this.key, this.values);
   }
 }
 
-export class UnknownDependency<T> implements IConfiguredDependency<T> {
-  constructor(readonly key: string, private readonly values: Record<string, IConfiguredDependency<any>>) {}
+export class UnknownDependency<T> implements IDependency<T> {
+  constructor(readonly key: string, private readonly values: Record<string, IDependency<any>>) {}
 
   get type(): DependencyType | string {
     return DependencyType.Unknown;
+  }
+
+  destroy(): void {
+    // no-op
   }
 
   isResolved(): boolean {
     return false;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  resolveValue(container: IServiceContainer): T {
-    console.log(Object.keys(this.values));
+  resolveValue(): T {
     throw new Error(`Unrecognized service: ${this.key}`);
   }
 
-  clone(): IConfiguredDependency<T> {
+  clone(): IDependency<T> {
     return this;
   }
 }
