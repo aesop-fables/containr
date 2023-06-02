@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { ContainerKey } from './Constants';
 import { createAutoResolvingFactory } from './createAutoResolvingFactory';
-import { IDependency, UnknownDependency, ConfiguredDependency, ArrayDependency } from './Dependencies';
+import { IDependency, UnknownDependency, ConfiguredDependency, ArrayDependency, ContainerDependency } from './Dependencies';
 import { IServiceContainer, ValueFactoryDelegate } from './IServiceContainer';
 import { IServiceModule } from './Modules';
 import { Stack } from './Stack';
@@ -90,7 +91,10 @@ export class ServiceCollection {
    * @returns The configured container.
    */
   buildContainer(): ServiceContainer {
-    return new ServiceContainer(this.values);
+    return new ServiceContainer({
+      ...this.values,
+      [ContainerKey]: new ContainerDependency(),
+    });
   }
 
   /**
