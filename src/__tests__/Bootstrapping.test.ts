@@ -52,5 +52,36 @@ describe('Bootstrapping', () => {
       const [activator] = container.get<IActivator[]>(BootstrappingServices.Activators);
       expect((activator as TestActivator).isActivated).toBeFalsy();
     });
+
+    test('playing with the new syntax', () => {
+      // Thought: What if we do a "withDefaultConventions" plugin that lets you use something like @injectAsDefaultFor(MyKey)
+      // services
+      //   .register<ISomething>('Something')
+      //   .withAutoWire(Something, Scope.Transient);
+
+      // this is the baseline usage (IConfiguredDependency<T>)
+      services.register(dependency);
+
+      services
+        .factory<ISomething>(Key, Something, Scope.Transient)
+        .singleton<ISomething>(Key, something);
+        .autoWire<ISomething>(Key, Something, Scope.Singleton)
+        .array<ISomething>(Key, Something, Scope.Transient)
+        .arrayAutoWire<ISomething>(Key, Something, Scope.Transient)
+
+
+      services.buildContainer([]);
+
+      // wtf is a plugin?
+
+      // plot twist: lets rename IConfiguredDependency to be IDependency, k?
+      interface IDependencyResolver {
+        
+      }
+
+      class MyClass {
+        constructor(@injectSubject(Key) private readonly blah: Observable<MyModel>) {}
+      }
+    });
   });
 });
