@@ -1,23 +1,41 @@
-const injectMetadataKey = Symbol('@aesop-fables/containr/inject');
+import { InterceptorChain } from './Interceptors';
+import { getDependencyMetadata, setDependencyMetadata } from './Internals';
+import { IDependencyMetadata } from './Types';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export const getDependencyMetadata = (constructor: Object) => {
-  const metadata = (Reflect.getMetadata(injectMetadataKey, constructor) || []) as IDependencyMetadata[];
-  return metadata;
-};
+declare type Type = Object;
 
-export interface IDependencyMetadata {
-  dependencyKey: string;
-  parameterIndex: number;
-  propertyKey: string | symbol | undefined;
+// Let's only expose the 2nd gen/level of abstractions
+export function registerDependency(target: Type, dependencyKey: string, parameterIndex: number): void {
+  const metadata = getDependencyMetadata(target);
+  metadata.push({
+    dependencyKey,
+    parameterIndex,
+    interceptors: new InterceptorChain(dependencyKey),
+  } as IDependencyMetadata);
+
+  setDependencyMetadata(target, metadata);
 }
+
+// eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
+export function interceptorChainFor<T = any>(constructor: Type, parameterIndex: number) {
+  const metadata = getDependencyMetadata(constructor);
+  const dependency = metadata.find((x) => x.parameterIndex === parameterIndex);
+  if (!dependency) {
+    return undefined;
+  }
+
+  return dependency.interceptors as InterceptorChain<T>;
+}
+
+// Change injectMetadataKey
+// InterceptorChain per reflect-target. If it doesn't exist, create it and store it (function)
+
+// Then @inject becomes a registration of an interceptor
 
 export function inject(dependencyKey: string) {
   // eslint-disable-next-line @typescript-eslint/ban-types
-  return (target: Object, propertyKey: string | symbol | undefined, parameterIndex: number): void => {
-    const params = getDependencyMetadata(target);
-    params.push({ dependencyKey, parameterIndex, propertyKey } as IDependencyMetadata);
-
-    Reflect.defineMetadata(injectMetadataKey, params, target);
+  return (target: Type, _propertyKey: string | symbol | undefined, parameterIndex: number): void => {
+    registerDependency(target, dependencyKey, parameterIndex);
   };
 }

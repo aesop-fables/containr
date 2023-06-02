@@ -1,17 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { ContainerKey } from './Constants';
 import { createAutoResolvingFactory } from './createAutoResolvingFactory';
 import { IServiceContainer, ValueFactoryDelegate } from './IServiceContainer';
 import { Newable } from './Types';
 
-export declare enum DependencyType {
-  Array,
-  Configured,
-  Unknown,
-}
-
 export interface IDependency<T> {
   key: string;
-  type: DependencyType | string;
   isResolved(): boolean;
   resolveValue(container: IServiceContainer): T;
   destroy(): void;
@@ -32,10 +26,6 @@ export class ConfiguredDependency<T> implements IDependency<T> {
       this.factory = () => value;
       this.value = value;
     }
-  }
-
-  get type(): DependencyType | string {
-    return DependencyType.Configured;
   }
 
   destroy(): void {
@@ -82,10 +72,6 @@ export class ArrayDependency<T> implements IDependency<T[]> {
 
   constructor(readonly key: string, private readonly values: IDependency<T>[] = []) {}
 
-  get type(): DependencyType | string {
-    return DependencyType.Array;
-  }
-
   destroy(): void {
     this.values.forEach((x) => x.destroy());
   }
@@ -117,10 +103,6 @@ export class ArrayDependency<T> implements IDependency<T[]> {
 export class UnknownDependency<T> implements IDependency<T> {
   constructor(readonly key: string, private readonly values: Record<string, IDependency<any>>) {}
 
-  get type(): DependencyType | string {
-    return DependencyType.Unknown;
-  }
-
   destroy(): void {
     // no-op
   }
@@ -134,6 +116,28 @@ export class UnknownDependency<T> implements IDependency<T> {
   }
 
   clone(): IDependency<T> {
+    return this;
+  }
+}
+
+export class ContainerDependency implements IDependency<IServiceContainer> {
+  get key(): string {
+    return ContainerKey;
+  }
+
+  isResolved(): boolean {
+    return true;
+  }
+
+  resolveValue(container: IServiceContainer): IServiceContainer {
+    return container;
+  }
+
+  destroy(): void {
+    // no-op
+  }
+
+  clone(): IDependency<IServiceContainer> {
     return this;
   }
 }

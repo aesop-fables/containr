@@ -1,5 +1,7 @@
+export * from './AutoResolver';
 export * from './Bootstrapping';
 export * from './createAutoResolvingFactory';
+export * from './Constants';
 export * from './Container';
 export * from './Dependencies';
 export * from './Disposable';
