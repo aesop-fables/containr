@@ -1,3 +1,4 @@
+export * from './Arrays';
 export * from './AutoResolver';
 export * from './Bootstrapping';
 export * from './createAutoResolvingFactory';

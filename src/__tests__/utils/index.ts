@@ -1,3 +1,5 @@
+import { IServiceContainer, ServiceCollection } from '../..';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export async function waitUntil(predicate: () => Promise<boolean>, nrRetries = 3): Promise<void> {
   const interval = 250;
@@ -30,4 +32,13 @@ export async function wait(time: number): Promise<void> {
       resolve();
     }, time);
   });
+}
+
+export declare type ServiceCollectionExpression = (services: ServiceCollection) => void;
+
+export function buildContainer(configure: ServiceCollectionExpression): IServiceContainer {
+  const collection = new ServiceCollection();
+  configure(collection);
+
+  return collection.buildContainer();
 }

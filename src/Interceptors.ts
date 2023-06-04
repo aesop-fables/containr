@@ -1,7 +1,8 @@
 import { IServiceContainer } from './IServiceContainer';
+import { Stack } from './Stack';
 
 export interface IInterceptor<T> {
-  resolve(currentValue: T | undefined, container: IServiceContainer): T;
+  resolve(currentValue: T | undefined, container: IServiceContainer, errors: Stack<Error>): T;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,9 +16,20 @@ export class InterceptorChain<T = any> {
   }
 
   resolve(container: IServiceContainer): T {
-    let currentValue: T | undefined = container.get<T>(this.key);
+    const errors = new Stack<Error>();
+    let currentValue: T | undefined;
+    try {
+      currentValue = container.get<T>(this.key);
+    } catch (e) {
+      errors.push(e as Error);
+    }
+
     for (let i = 0; i < this.interceptors.length; i++) {
-      currentValue = this.interceptors[i].resolve(currentValue, container);
+      currentValue = this.interceptors[i].resolve(currentValue, container, errors);
+    }
+
+    if (errors.size() !== 0) {
+      throw errors.peek();
     }
 
     return currentValue as T;

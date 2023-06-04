@@ -1,14 +1,6 @@
 import 'reflect-metadata';
-import { IServiceContainer, Scopes, ServiceCollection, inject } from '..';
-
-declare type ServiceCollectionExpression = (services: ServiceCollection) => void;
-
-function buildContainer(configure: ServiceCollectionExpression): IServiceContainer {
-  const collection = new ServiceCollection();
-  configure(collection);
-
-  return collection.buildContainer();
-}
+import { Scopes, inject } from '..';
+import { buildContainer } from './utils';
 
 const key = '@aesop-fables/containr/test';
 
