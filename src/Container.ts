@@ -114,6 +114,7 @@ export class ServiceCollection {
    * Register the specified key
    * @param key The key of the dependency
    * @param value Value (or value factory) for resolving the dependency
+   * @deprecated Marked for removal; please use the new registration DSL
    */
   register<T>(key: string, value: T): ServiceCollection;
   register<T>(key: string, value: ValueFactoryDelegate<T>): ServiceCollection;
@@ -126,6 +127,7 @@ export class ServiceCollection {
    * Appends the specified dependency to the array of dependencies registered against the given key.
    * @param key The key of the dependencies
    * @param clazz A reference to the class (for auto-wiring)
+   * @deprecated Marked for removal; please use the new registration DSL
    */
   add<T>(key: string, clazz: Newable<T>): ServiceCollection {
     let dependency = this.values[key] as ArrayDependency<T>;
@@ -141,6 +143,7 @@ export class ServiceCollection {
    * Appends the specified dependency to the array of dependencies registered against the given key.
    * @param key The key of the dependencies.
    * @param value Value (or value factory) for resolving the dependency.
+   * @deprecated Marked for removal; please use the new registration DSL
    */
   addDependency<T>(key: string, value: T | ValueFactoryDelegate<T>): ServiceCollection {
     let dependency = this.values[key] as ArrayDependency<T>;
@@ -156,6 +159,7 @@ export class ServiceCollection {
    * Registers an auto-wired dependency for the given key.
    * @param key The key of the dependency.
    * @param clazz The class to auto-wire.
+   * @deprecated Marked for removal; please use the new registration DSL
    */
   use<T>(key: string, clazz: Newable<T>): ServiceCollection {
     return this.register(key, createAutoResolvingFactory<T>(clazz));
