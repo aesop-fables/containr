@@ -21,16 +21,16 @@ By and large, you really only do two kinds of things with `containr`:
 ### Configuring dependencies
 In `containr`, values are registered against unique keys (strings). When you request for the container to `get` a dependency, you use a key to refer to it. The resolution logic works like:
 
-1. If the value has already been resolved (or the dependency was registered as a resolved value), then return the value.
-2. If the value hasn't been resolved and a factory was specified, invoke the factory and cache the value
-3. If the value hasn't been resolved and auto-wiring is being used, read the `@inject` decorator usage and determine which dependecies to resolve and pass them into the constructor.
+1. Delegate to the configured scope for managing lifecyle (i.e., transient, unique, singleton)
+2. When the dependency is being resolved and a factory was specified, invoke the factory (the scope may cache the value)
+3. Pass it along to `containr`'s interceptor model. 
 
 ### The "Bootstrapping" Phase
 The process of creating a container is known as the `bootstrapping` phase (or used as a verb to refer to the act of creating the container). 
 
-### Auto-wiring
+### Auto Resolution
 Due to limitations in Typescript's support for overloading, there are functions
-designed for registering dependencies to use auto-wiring (e.g., add, use).
+designed for registering dependencies to use auto-resolution (e.g., add, use).
 
 ### Service Modules
 Service modules are blocks of code that are used to modify a `ServiceCollection`. They're designed to be reused and shared across projects (exported from custom npm packages). While it can be argued that it overlaps with React's naming conventions for hooks, we've employed a `use*` naming convention for service modules (e.g., `useMyApi`).
@@ -68,13 +68,13 @@ export class CaseApi implements ICaseApi {
 }
 
 // bootstrap.ts
-import { createContainer, createServiceModule } from '@aesop-fables/containr';
+import { createContainer, createServiceModule, Scopes } from '@aesop-fables/containr';
 import { useAxios } from '@aesop-fables/containr-axios';
 import { ICaseApi, CaseApi } from './CaseApi';
 import CaseServiceKeys from './CaseServiceKeys';
 
 const useCaseServices = createServiceModule('cases', (services) => {
-    services.use<ICaseApi>(CaseServiceKeys.Api, CaseApi);
+    services.factory<ICaseApi>(CaseServiceKeys.Api, CaseApi, Scopes.Transient);
 });
 
 export default function() {
