@@ -9,5 +9,6 @@ export * from './IServiceContainer';
 export * from './Interceptors';
 export * from './Metadata';
 export * from './Modules';
+export * from './Scopes';
 export * from './Stack';
 export * from './Types';

@@ -4,13 +4,13 @@ import { createAutoResolvingFactory } from './createAutoResolvingFactory';
 import {
   IDependency,
   UnknownDependency,
-  ConfiguredDependency,
+  ValueFactoryDependency,
   ArrayDependency,
   ContainerDependency,
 } from './Dependencies';
 import { IServiceContainer, ValueFactoryDelegate } from './IServiceContainer';
 import { IServiceModule } from './Modules';
-import { IScopedDependency, TransientScope } from './Scopes';
+import { createScope, IScopedDependency, Scopes, TransientScope, UniqueScope } from './Scopes';
 import { Stack } from './Stack';
 import { Newable } from './Types';
 
@@ -49,7 +49,7 @@ export class ServiceCollection {
   buildContainer(): ServiceContainer {
     return new ServiceContainer({
       ...this.values,
-      [ContainerKey]: new ContainerDependency(),
+      [ContainerKey]: new UniqueScope(new ContainerDependency()),
     });
   }
 
@@ -107,9 +107,76 @@ export class ServiceCollection {
       container.dispose();
     }
   }
+  /**
+   * Registers a value factory for the specified key.
+   * @param key The key of the dependency.
+   * @param value Value (or value factory) for resolving the dependency.
+   * @param scope The scope of the dependency.
+   */
+  factory<T>(key: string, value: ValueFactoryDelegate<T>, scope: Scopes): ServiceCollection {
+    return this.push(key, new ValueFactoryDependency<T>(key, value), scope);
+  }
+  /**
+   * Registers a singleton value for the specified key.
+   * @param key The key of the dependency.
+   * @param value Value to be used.
+   */
+  singleton<T>(key: string, value: T): ServiceCollection {
+    return this.push(key, new ValueFactoryDependency<T>(key, value), Scopes.Singleton);
+  }
+  /**
+   * Appends the value (or factory) to the specified array dependency.
+   * @param key The key of the dependency
+   * @param value Value to be appended
+   * @param scope The scope of the array dependency (this is required on first creation).
+   */
+  array<T>(key: string, value: ValueFactoryDelegate<T> | T): ServiceCollection {
+    const scopedDependency = this.values[key] as IScopedDependency<T[]>;
+    let dependency = scopedDependency?.dependency as ArrayDependency<T>;
+    if (typeof scopedDependency?.dependency === 'undefined') {
+      dependency = new ArrayDependency<T>(key);
+      this.values[key] = createScope(Scopes.Transient, dependency as IDependency<T[]>);
+    }
 
-  // TODO -- New functions go here
+    dependency.register(value);
+    return this;
+  }
+  /**
+   * Appends the type to the specified array dependency.
+   * @param key The key of the dependency.
+   * @param value Value to be appended.
+   * @param scope The scope of the array dependency (this is required on first creation).
+   */
+  arrayAutoResolve<T>(key: string, type: Newable<T>): ServiceCollection {
+    const scopedDependency = this.values[key] as IScopedDependency<T[]>;
+    let dependency = scopedDependency?.dependency as ArrayDependency<T>;
+    if (typeof scopedDependency?.dependency === 'undefined') {
+      dependency = new ArrayDependency<T>(key);
+      this.values[key] = createScope(Scopes.Transient, dependency as IDependency<T[]>);
+    }
 
+    dependency.push(type);
+    return this;
+  }
+  /**
+   * Registers an auto-resolving factory for the given key.
+   * @param key The key of the dependency.
+   * @param clazz The class to auto-resolve.
+   * @param scope The scope of the dependency.
+   */
+  autoResolve<T>(key: string, type: Newable<T>, scope: Scopes): ServiceCollection {
+    return this.factory<T>(key, createAutoResolvingFactory(type), scope);
+  }
+  /**
+   * Registers a dependency and wraps it with the specified scope.
+   * @param key The key of the dependency.
+   * @param dependency The dependency to register.
+   * @param scope The scope of the dependency.
+   */
+  push<T>(key: string, dependency: IDependency<T>, scope: Scopes): ServiceCollection {
+    this.values[key] = createScope(scope, dependency);
+    return this;
+  }
 
   // LEGACY REGISTRATION
   /**
@@ -119,12 +186,22 @@ export class ServiceCollection {
    * @deprecated Marked for removal; please use the new registration DSL
    */
   register<T>(key: string, value: T): ServiceCollection;
+  /**
+   * Register the specified key
+   * @param key The key of the dependency
+   * @param value Value factory for resolving the dependency
+   * @deprecated Marked for removal; please use the new registration DSL
+   */
   register<T>(key: string, value: ValueFactoryDelegate<T>): ServiceCollection;
+  /**
+   * Register the specified key
+   * @param key The key of the dependency
+   * @param value Value (or value factory) for resolving the dependency
+   * @deprecated Marked for removal; please use the new registration DSL
+   */
   register<T>(key: string, value: T | ValueFactoryDelegate<T>): ServiceCollection {
-    this.values[key] = new TransientScope<T>(new ConfiguredDependency<T>(key, value));
-    return this;
+    return this.push(key, new ValueFactoryDependency<T>(key, value), Scopes.Transient);
   }
-
   /**
    * Appends the specified dependency to the array of dependencies registered against the given key.
    * @param key The key of the dependencies
@@ -135,13 +212,12 @@ export class ServiceCollection {
     let dependency = this.values[key]?.dependency as ArrayDependency<T>;
     if (typeof dependency === 'undefined') {
       dependency = new ArrayDependency<T>(key);
-      this.values[key] = new TransientScope<T>(dependency);
+      this.values[key] = new TransientScope<T[]>(dependency as IDependency<T[]>);
     }
 
     dependency.push(clazz);
     return this;
   }
-
   /**
    * Appends the specified dependency to the array of dependencies registered against the given key.
    * @param key The key of the dependencies.
@@ -152,13 +228,12 @@ export class ServiceCollection {
     let dependency = this.values[key]?.dependency as ArrayDependency<T>;
     if (typeof dependency === 'undefined') {
       dependency = new ArrayDependency<T>(key);
-      this.values[key] = new TransientScope<T>(dependency);
+      this.values[key] = new TransientScope<T[]>(dependency as IDependency<T[]>);
     }
 
     dependency.register(value);
     return this;
   }
-
   /**
    * Registers an auto-wired dependency for the given key.
    * @param key The key of the dependency.
@@ -166,12 +241,12 @@ export class ServiceCollection {
    * @deprecated Marked for removal; please use the new registration DSL
    */
   use<T>(key: string, clazz: Newable<T>): ServiceCollection {
-    return this.register(key, createAutoResolvingFactory<T>(clazz));
+    return this.push(key, new ValueFactoryDependency<T>(key, createAutoResolvingFactory<T>(clazz)), Scopes.Transient);
   }
 }
 
 export class ServiceContainer implements IServiceContainer {
-  private readonly values: Record<string, IDependency<any>>;
+  private readonly values: Record<string, IScopedDependency<any>>;
 
   constructor(values: Record<string, any>, private parent?: IServiceContainer, private provenance?: string) {
     this.values = values;
@@ -189,10 +264,10 @@ export class ServiceContainer implements IServiceContainer {
         return this.parent.get<T>(key);
       }
 
-      value = new UnknownDependency<T>(key);
+      value = new TransientScope<T>(new UnknownDependency<T>(key));
     }
 
-    return (value as IDependency<T>).resolveValue(this);
+    return (value as IScopedDependency<T>).resolveValue(this);
   }
 
   get<T>(key: string): T;
@@ -328,14 +403,8 @@ export class ServiceContainer implements IServiceContainer {
   }
 
   createChildContainer(provenance: string, overrides?: IServiceModule[]): IServiceContainer {
-    const values: Record<string, IDependency<any>> = {};
-    const keys = Object.entries(this.values)
-      .filter(([, value]) => !value.isResolved())
-      .map(([key]) => key);
-
-    keys.forEach((key) => {
-      values[key] = this.values[key].clone();
-    });
+    const values: Record<string, IScopedDependency<any>> = {};
+    Object.entries(this.values).forEach(([key, scope]) => (values[key] = scope.clone()));
 
     const services = new ServiceCollection(values);
     const modules = overrides ?? [];
@@ -345,13 +414,7 @@ export class ServiceContainer implements IServiceContainer {
   }
 
   dispose(): void {
-    const keys = Object.entries(this.values)
-      .filter(([, value]) => {
-        return value.isResolved();
-      })
-      .map(([key]) => key);
-
-    keys.forEach((key) => this.destroy(key));
+    Object.values(this.values).forEach((scope) => scope.destroy());
   }
 }
 

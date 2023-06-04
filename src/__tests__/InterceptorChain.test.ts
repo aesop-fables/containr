@@ -20,7 +20,7 @@ describe('InterceptorChain', () => {
       {
         name: 'test',
         configureServices(services) {
-          services.register<string>(key, message);
+          services.singleton<string>(key, message);
         },
       },
     ]);
@@ -39,7 +39,7 @@ describe('InterceptorChain', () => {
       {
         name: 'test',
         configureServices(services) {
-          services.register<string>(key, message);
+          services.singleton<string>(key, message);
         },
       },
     ]);
@@ -60,7 +60,7 @@ describe('InterceptorChain', () => {
       {
         name: 'test',
         configureServices(services) {
-          services.register<string>(key, message);
+          services.singleton<string>(key, message);
         },
       },
     ]);

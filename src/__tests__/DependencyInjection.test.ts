@@ -2,15 +2,16 @@ import 'reflect-metadata';
 import {
   BootstrappingServices,
   createContainer,
-  ConfiguredDependency,
+  ValueFactoryDependency,
   inject,
   IServiceRegistry,
   ServiceCollection,
   IActivator,
   IServiceModule,
+  Disposable,
+  Scopes,
 } from '..';
 import { mock } from 'jest-mock-extended';
-import { Disposable } from '../Disposable';
 
 class UsingExpression<T extends Disposable> {
   constructor(private factory: () => T) {}
@@ -55,21 +56,9 @@ describe('Dependency Injection', () => {
   });
 
   describe('ConfiguredDependency', () => {
-    test('isResolved() - true', () => {
-      const key = 'test';
-      const dependency = new ConfiguredDependency<string>(key, 'foo');
-      expect(dependency.isResolved()).toBeTruthy();
-    });
-
-    test('isResolved() - ƒalse', () => {
-      const key = 'test';
-      const dependency = new ConfiguredDependency<string | undefined>(key, () => undefined);
-      expect(dependency.isResolved()).toBeFalsy();
-    });
-
     test('resolveValue() - happy path', () => {
       const key = 'test';
-      const dependency = new ConfiguredDependency<string>(key, () => 'foo');
+      const dependency = new ValueFactoryDependency<string>(key, () => 'foo');
       const container = new ServiceCollection().buildContainer();
       expect(dependency.resolveValue(container)).toBe('foo');
     });
@@ -77,7 +66,7 @@ describe('Dependency Injection', () => {
     test('resolveValue() - uses factory when value is undefined', () => {
       const key = 'test';
       let invoked = false;
-      const dependency = new ConfiguredDependency<string>(key, () => {
+      const dependency = new ValueFactoryDependency<string>(key, () => {
         invoked = true;
         return 'foo';
       });
@@ -88,21 +77,17 @@ describe('Dependency Injection', () => {
 
     test('resolveValue() - uses factory and caches value', () => {
       const key = 'test';
-      let nrInvocations = 0;
-      const dependency = new ConfiguredDependency<string>(key, () => {
-        ++nrInvocations;
+      const dependency = new ValueFactoryDependency<string>(key, () => {
         return 'foo';
       });
       const container = new ServiceCollection().buildContainer();
       expect(dependency.resolveValue(container)).toBe('foo');
-      expect(dependency.resolveValue(container)).toBe('foo');
-      expect(nrInvocations).toBe(1);
     });
 
     test('replaceValue() - uses value provided', () => {
       const key = 'test';
       let invoked = false;
-      const dependency = new ConfiguredDependency<string>(key, () => {
+      const dependency = new ValueFactoryDependency<string>(key, () => {
         // invoked = true; leaving this commented out for the visual cue
         return 'foo';
       });
@@ -115,20 +100,16 @@ describe('Dependency Injection', () => {
       expect(invoked).toBeTruthy();
     });
 
-    test('replaceValue() - uses factory provided and caches result', () => {
+    test('replaceValue() - uses factory provided', () => {
       const key = 'test';
-      let nrInvocations = 0;
-      const dependency = new ConfiguredDependency<string>(key, () => {
+      const dependency = new ValueFactoryDependency<string>(key, () => {
         throw new Error('NOPE NOPE NOPE');
       });
       dependency.replaceValue(() => {
-        ++nrInvocations;
         return 'foo';
       });
       const container = new ServiceCollection().buildContainer();
       expect(dependency.resolveValue(container)).toBe('foo');
-      expect(dependency.resolveValue(container)).toBe('foo');
-      expect(nrInvocations).toBe(1);
     });
   });
 
@@ -143,8 +124,8 @@ describe('Dependency Injection', () => {
 
       const services1 = new ServiceCollection();
       const services2 = new ServiceCollection();
-      services1.register(key1, value1);
-      services2.register(key2, value2);
+      services1.singleton(key1, value1);
+      services2.singleton(key2, value2);
 
       services1.import(services2);
 
@@ -161,9 +142,9 @@ describe('Dependency Injection', () => {
 
       const services1 = new ServiceCollection();
       const services2 = new ServiceCollection();
-      services1.register(key1, value1);
-      services2.register(key2, value2);
-      services2.register(key1, value3);
+      services1.singleton(key1, value1);
+      services2.singleton(key2, value2);
+      services2.singleton(key1, value3);
 
       services1.import(services2);
 
@@ -182,13 +163,13 @@ describe('Dependency Injection', () => {
 
       class SampleRegistry implements IServiceRegistry {
         configureServices(services: ServiceCollection): void {
-          services.register(key2, value2);
-          services.register(key1, value3);
+          services.singleton(key2, value2);
+          services.singleton(key1, value3);
         }
       }
 
       const services = new ServiceCollection();
-      services.register(key1, value1);
+      services.singleton(key1, value1);
       services.include(new SampleRegistry());
 
       const container = services.buildContainer();
@@ -205,8 +186,8 @@ describe('Dependency Injection', () => {
 
       class SampleRegistry implements IServiceRegistry {
         configureServices(services: ServiceCollection): void {
-          services.register(key1, value1);
-          services.register(key2, value2);
+          services.singleton(key1, value1);
+          services.singleton(key2, value2);
         }
       }
 
@@ -238,8 +219,8 @@ describe('Dependency Injection', () => {
 
       const key = 'policies';
       const services = new ServiceCollection();
-      services.add<IPolicy>(key, PolicyA);
-      services.add<IPolicy>(key, PolicyB);
+      services.arrayAutoResolve<IPolicy>(key, PolicyA);
+      services.arrayAutoResolve<IPolicy>(key, PolicyB);
 
       const container = services.buildContainer();
       const policies = container.get<IPolicy[]>(key);
@@ -255,7 +236,7 @@ describe('Dependency Injection', () => {
       const value = 'test@test.com';
 
       const services = new ServiceCollection();
-      services.register(testServiceKey, value);
+      services.singleton(testServiceKey, value);
 
       const container = services.buildContainer();
 
@@ -269,8 +250,8 @@ describe('Dependency Injection', () => {
       const value2 = 'test2@test.com';
 
       const services = new ServiceCollection();
-      services.register(key1, value1);
-      services.register(key2, value2);
+      services.singleton(key1, value1);
+      services.singleton(key2, value2);
 
       const container = services.buildContainer();
 
@@ -282,7 +263,7 @@ describe('Dependency Injection', () => {
 
       const id = '1234';
       const services = new ServiceCollection();
-      services.register<ISampleService>(testServiceKey, () => new SampleService(id));
+      services.factory<ISampleService>(testServiceKey, () => new SampleService(id), Scopes.Transient);
 
       const container = services.buildContainer();
 
@@ -294,7 +275,7 @@ describe('Dependency Injection', () => {
 
       const id = '1234';
       const services = new ServiceCollection();
-      services.register<ISampleService>(testServiceKey, () => new SampleService(id));
+      services.factory<ISampleService>(testServiceKey, () => new SampleService(id), Scopes.Transient);
 
       const container = services.buildContainer();
 
@@ -310,7 +291,7 @@ describe('Dependency Injection', () => {
 
       const id = '1234';
       const services = new ServiceCollection();
-      services.register<ISampleService>(testServiceKey, () => new SampleService(id));
+      services.factory<ISampleService>(testServiceKey, () => new SampleService(id), Scopes.Transient);
 
       const container = services.buildContainer();
       for (let i = 0; i < 5; i++) {
@@ -336,7 +317,7 @@ describe('Dependency Injection', () => {
         const testServiceKey = 'sample';
         const id = '1234';
         const services = new ServiceCollection();
-        services.register<ISampleService>(testServiceKey, () => new SampleService(id));
+        services.factory<ISampleService>(testServiceKey, () => new SampleService(id), Scopes.Transient);
 
         const container = services.buildContainer();
         container.get<ISampleService>(testServiceKey);
@@ -352,7 +333,7 @@ describe('Dependency Injection', () => {
         const testServiceKey = 'sample';
         const id = '1234';
         const services = new ServiceCollection();
-        services.register<ISampleService>(testServiceKey, () => new SampleService(id));
+        services.factory<ISampleService>(testServiceKey, () => new SampleService(id), Scopes.Transient);
 
         const container = services.buildContainer();
         using(() => container.createChildContainer('test')).do((childContainer) => {
@@ -368,12 +349,12 @@ describe('Dependency Injection', () => {
         const testServiceKey = 'sample';
         const id = '1234';
         const services = new ServiceCollection();
-        services.register<ISampleService>(testServiceKey, () => new SampleService(id));
+        services.factory<ISampleService>(testServiceKey, () => new SampleService(id), Scopes.Transient);
 
         const testOverride: IServiceModule = {
           name: 'overrides',
           configureServices(services) {
-            services.register<string>(testServiceKey, id);
+            services.singleton<string>(testServiceKey, id);
           },
         };
 
@@ -416,8 +397,8 @@ describe('Auto-wiring', () => {
 
     const dependency = new Dependency();
     const services = new ServiceCollection();
-    services.register<IDependency>('Hello', () => dependency);
-    services.use('Service', Service);
+    services.factory<IDependency>('Hello', () => dependency, Scopes.Transient);
+    services.autoResolve('Service', Service, Scopes.Transient);
 
     const container = services.buildContainer();
     const service = container.get<IService>('Service');
@@ -439,10 +420,10 @@ describe('Auto-wiring', () => {
         }
 
         configureServices(services: ServiceCollection): void {
-          services.addDependency<IPolicy>('two', policyA);
-          services.addDependency<IPolicy>('two', policyB);
-          services.register<IService>('one', () => service);
-          services.add<IActivator>(BootstrappingServices.Activators, StubActivator);
+          services.array<IPolicy>('two', policyA);
+          services.array<IPolicy>('two', policyB);
+          services.factory<IService>('one', () => service, Scopes.Transient);
+          services.arrayAutoResolve<IActivator>(BootstrappingServices.Activators, StubActivator);
         }
       }
 
@@ -462,9 +443,8 @@ describe('Auto-wiring', () => {
     const service = mock<IService>();
 
     const services = new ServiceCollection();
-    services.addDependency<IPolicy>('two', policyA);
-    services.addDependency<IPolicy>('two', policyB);
-    services.register<IService>('one', service);
+    services.array<IPolicy>('two', policyA).array<IPolicy>('two', policyB);
+    services.singleton<IService>('one', service);
 
     const container = services.buildContainer();
     const activator = container.resolve(StubActivator);

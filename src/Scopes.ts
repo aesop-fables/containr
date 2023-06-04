@@ -1,5 +1,13 @@
 import { IDependency } from './Dependencies';
 import { IServiceContainer } from './IServiceContainer';
+import { safeDispose } from './Internals';
+import { Newable } from './Types';
+
+export enum Scopes {
+  Singleton,
+  Transient,
+  Unique,
+}
 
 export interface IScopedDependency<T> {
   dependency: IDependency<T>;
@@ -8,47 +16,67 @@ export interface IScopedDependency<T> {
   resolveValue(container: IServiceContainer): T;
 }
 
-export class SingletonScope<T> implements IScopedDependency<T> {
-  get dependency(): IDependency<T> {
-    throw new Error('Method not implemented.');
+export class TransientScope<T> implements IScopedDependency<T> {
+  value: T | undefined;
+  constructor(readonly dependency: IDependency<T>) {}
+
+  destroy(): void {
+    if (this.value) {
+      safeDispose(this.value);
+      this.value = undefined;
+    }
+  }
+
+  resolveValue(container: IServiceContainer): T {
+    if (typeof this.value === 'undefined') {
+      this.value = this.dependency.resolveValue(container);
+    }
+
+    return this.value;
   }
 
   clone(): IScopedDependency<T> {
-    throw new Error('Method not implemented.');
-  }
-  destroy(): void {
-    throw new Error('Method not implemented.');
-  }
-  resolveValue(container: IServiceContainer): T {
-    throw new Error('Method not implemented.');
+    if (typeof this.value === 'undefined') {
+      return new TransientScope<T>(this.dependency);
+    }
+
+    return this;
   }
 }
 
-export class TransientScope<T> implements IScopedDependency<T> {
-  constructor(readonly dependency: IDependency<T>) {}
+export class SingletonScope<T> extends TransientScope<T> {
   clone(): IScopedDependency<T> {
-    throw new Error('Method not implemented.');
-  }
-  destroy(): void {
-    throw new Error('Method not implemented.');
-  }
-  resolveValue(container: IServiceContainer): T {
-    throw new Error('Method not implemented.');
+    return this;
   }
 }
 
 export class UniqueScope<T> implements IScopedDependency<T> {
-  get dependency(): IDependency<T> {
-    throw new Error('Method not implemented.');
-  }
+  constructor(readonly dependency: IDependency<T>) {}
 
   clone(): IScopedDependency<T> {
-    throw new Error('Method not implemented.');
+    return this;
   }
+
   destroy(): void {
-    throw new Error('Method not implemented.');
+    // no-op
   }
+
   resolveValue(container: IServiceContainer): T {
-    throw new Error('Method not implemented.');
+    return this.dependency.resolveValue(container);
   }
+}
+
+const scopeMap = {
+  [Scopes.Singleton]: SingletonScope,
+  [Scopes.Transient]: TransientScope,
+  [Scopes.Unique]: UniqueScope,
+};
+
+export function createScope<T>(scope: Scopes, dependency: IDependency<T>): IScopedDependency<T> {
+  const Scope = scopeMap[scope] as Newable<IScopedDependency<T>> | undefined;
+  if (!Scope) {
+    throw new Error(`Unrecognized scope: ${scope}`);
+  }
+
+  return new Scope(dependency);
 }

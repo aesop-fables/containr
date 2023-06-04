@@ -17,7 +17,7 @@ describe('AutoResolver', () => {
       {
         name: 'test',
         configureServices(services) {
-          services.register<string>(key, message);
+          services.singleton<string>(key, message);
         },
       },
     ]);

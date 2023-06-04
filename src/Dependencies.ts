@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ContainerKey } from './Constants';
 import { createAutoResolvingFactory } from './createAutoResolvingFactory';
-import { safeDispose } from './Internals';
 import { IServiceContainer, ValueFactoryDelegate } from './IServiceContainer';
 import { Newable } from './Types';
 
@@ -10,53 +9,31 @@ export interface IDependency<T> {
   resolveValue(container: IServiceContainer): T;
 }
 
-export class ConfiguredDependency<T> implements IDependency<T> {
-  readonly key: string;
+export class ValueFactoryDependency<T> implements IDependency<T> {
   factory: ValueFactoryDelegate<T>;
-  value: T | undefined;
 
-  constructor(key: string, value: T | ValueFactoryDelegate<T>) {
-    this.key = key;
-
+  constructor(readonly key: string, value: T | ValueFactoryDelegate<T>) {
     if (typeof value === 'function') {
       this.factory = value as ValueFactoryDelegate<T>;
     } else {
       this.factory = () => value;
-      this.value = value;
     }
-  }
-
-  destroy(): void {
-    if (this.value) {
-      safeDispose(this.value);
-      this.value = undefined;
-    }
-  }
-
-  isResolved(): boolean {
-    return typeof this.value !== 'undefined';
   }
 
   resolveValue(container: IServiceContainer): T {
-    if (typeof this.value === 'undefined') {
-      this.value = this.factory(container);
-    }
-
-    return this.value;
+    return this.factory(container);
   }
 
-  // for the upcoming "inject"/configure on the container
   replaceValue(value: T | ValueFactoryDelegate<T>): void {
     if (typeof value === 'function') {
       this.factory = value as ValueFactoryDelegate<T>;
     } else {
       this.factory = () => value;
-      this.value = value;
     }
   }
 
   clone(): IDependency<T> {
-    return new ConfiguredDependency(this.key, this.factory);
+    return new ValueFactoryDependency(this.key, this.factory);
   }
 }
 
@@ -75,12 +52,12 @@ export class ArrayDependency<T> implements IDependency<T[]> {
   }
 
   register(value: T | ValueFactoryDelegate<T>): void {
-    this.values.push(new ConfiguredDependency(`${this.key}-${this.values.length}`, value));
+    this.values.push(new ValueFactoryDependency(`${this.key}-${this.values.length}`, value));
   }
 
   push(clazz: Newable<T>): void {
     this.values.push(
-      new ConfiguredDependency(`${this.key}-${this.values.length}`, createAutoResolvingFactory<T>(clazz)),
+      new ValueFactoryDependency(`${this.key}-${this.values.length}`, createAutoResolvingFactory<T>(clazz)),
     );
   }
 
