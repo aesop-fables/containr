@@ -10,6 +10,7 @@ import {
 } from './Dependencies';
 import { IServiceContainer, ValueFactoryDelegate } from './IServiceContainer';
 import { IServiceModule } from './Modules';
+import { IScopedDependency, TransientScope } from './Scopes';
 import { Stack } from './Stack';
 import { Newable } from './Types';
 
@@ -23,13 +24,13 @@ export type RegistryConstructor<T extends IServiceRegistry> = new () => T;
  * A collection of configured dependencies registered against unique keys.
  */
 export class ServiceCollection {
-  private values: Record<string, IDependency<any>>;
+  private values: Record<string, IScopedDependency<any>>;
 
   /**
    * Creates a new ServiceCollection
    * @param values Optional hash of configured dependencies (leave this unspecified in most cases).
    */
-  constructor(values?: Record<string, IDependency<any>>) {
+  constructor(values?: Record<string, IScopedDependency<any>>) {
     this.values = values ?? {};
   }
 
@@ -37,7 +38,7 @@ export class ServiceCollection {
    * Retrieves the underlying hash of configured dependencies.
    * @returns The underlying hash of configured dependencies.
    */
-  getValues(): Record<string, IDependency<any>> {
+  getValues(): Record<string, IScopedDependency<any>> {
     return this.values;
   }
 
@@ -109,6 +110,7 @@ export class ServiceCollection {
 
   // TODO -- New functions go here
 
+
   // LEGACY REGISTRATION
   /**
    * Register the specified key
@@ -119,7 +121,7 @@ export class ServiceCollection {
   register<T>(key: string, value: T): ServiceCollection;
   register<T>(key: string, value: ValueFactoryDelegate<T>): ServiceCollection;
   register<T>(key: string, value: T | ValueFactoryDelegate<T>): ServiceCollection {
-    this.values[key] = new ConfiguredDependency<T>(key, value);
+    this.values[key] = new TransientScope<T>(new ConfiguredDependency<T>(key, value));
     return this;
   }
 
@@ -130,9 +132,10 @@ export class ServiceCollection {
    * @deprecated Marked for removal; please use the new registration DSL
    */
   add<T>(key: string, clazz: Newable<T>): ServiceCollection {
-    let dependency = this.values[key] as ArrayDependency<T>;
+    let dependency = this.values[key]?.dependency as ArrayDependency<T>;
     if (typeof dependency === 'undefined') {
-      dependency = this.values[key] = new ArrayDependency<T>(key);
+      dependency = new ArrayDependency<T>(key);
+      this.values[key] = new TransientScope<T>(dependency);
     }
 
     dependency.push(clazz);
@@ -146,9 +149,10 @@ export class ServiceCollection {
    * @deprecated Marked for removal; please use the new registration DSL
    */
   addDependency<T>(key: string, value: T | ValueFactoryDelegate<T>): ServiceCollection {
-    let dependency = this.values[key] as ArrayDependency<T>;
+    let dependency = this.values[key]?.dependency as ArrayDependency<T>;
     if (typeof dependency === 'undefined') {
-      dependency = this.values[key] = new ArrayDependency<T>(key);
+      dependency = new ArrayDependency<T>(key);
+      this.values[key] = new TransientScope<T>(dependency);
     }
 
     dependency.register(value);
@@ -185,7 +189,7 @@ export class ServiceContainer implements IServiceContainer {
         return this.parent.get<T>(key);
       }
 
-      value = new UnknownDependency<T>(key, this.values);
+      value = new UnknownDependency<T>(key);
     }
 
     return (value as IDependency<T>).resolveValue(this);

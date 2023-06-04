@@ -1,15 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ContainerKey } from './Constants';
 import { createAutoResolvingFactory } from './createAutoResolvingFactory';
+import { safeDispose } from './Internals';
 import { IServiceContainer, ValueFactoryDelegate } from './IServiceContainer';
 import { Newable } from './Types';
 
 export interface IDependency<T> {
   key: string;
-  isResolved(): boolean;
   resolveValue(container: IServiceContainer): T;
-  destroy(): void;
-  clone(): IDependency<T>;
 }
 
 export class ConfiguredDependency<T> implements IDependency<T> {
@@ -30,12 +28,7 @@ export class ConfiguredDependency<T> implements IDependency<T> {
 
   destroy(): void {
     if (this.value) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const value = this.value as any;
-      if (typeof value.dispose === 'function') {
-        value.dispose();
-      }
-
+      safeDispose(this.value);
       this.value = undefined;
     }
   }
@@ -72,10 +65,6 @@ export class ArrayDependency<T> implements IDependency<T[]> {
 
   constructor(readonly key: string, private readonly values: IDependency<T>[] = []) {}
 
-  destroy(): void {
-    this.values.forEach((x) => x.destroy());
-  }
-
   isResolved(): boolean {
     return this.resolved;
   }
@@ -101,7 +90,7 @@ export class ArrayDependency<T> implements IDependency<T[]> {
 }
 
 export class UnknownDependency<T> implements IDependency<T> {
-  constructor(readonly key: string, private readonly values: Record<string, IDependency<any>>) {}
+  constructor(readonly key: string) {}
 
   destroy(): void {
     // no-op

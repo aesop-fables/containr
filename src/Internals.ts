@@ -15,3 +15,14 @@ export const getDependencyMetadata = (constructor: Type) => {
 export const setDependencyMetadata = (target: Type, metadata: IDependencyMetadata[]) => {
   Reflect.defineMetadata(metadataKey, metadata, target);
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function safeDispose(value: any) {
+  try {
+    if (typeof value.dispose === 'function') {
+      value.dispose();
+    }
+  } catch {
+    // no-op
+  }
+}
