@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ContainerKey } from './Constants';
 import { createAutoResolvingFactory } from './createAutoResolvingFactory';
-import { IDependency, UnknownDependency, ConfiguredDependency, ArrayDependency, ContainerDependency } from './Dependencies';
+import {
+  IDependency,
+  UnknownDependency,
+  ConfiguredDependency,
+  ArrayDependency,
+  ContainerDependency,
+} from './Dependencies';
 import { IServiceContainer, ValueFactoryDelegate } from './IServiceContainer';
 import { IServiceModule } from './Modules';
 import { Stack } from './Stack';
@@ -25,57 +31,6 @@ export class ServiceCollection {
    */
   constructor(values?: Record<string, IDependency<any>>) {
     this.values = values ?? {};
-  }
-
-  /**
-   * Register the specified key
-   * @param key The key of the dependency
-   * @param value Value (or value factory) for resolving the dependency
-   */
-  register<T>(key: string, value: T): ServiceCollection;
-  register<T>(key: string, value: ValueFactoryDelegate<T>): ServiceCollection;
-  register<T>(key: string, value: T | ValueFactoryDelegate<T>): ServiceCollection {
-    this.values[key] = new ConfiguredDependency<T>(key, value);
-    return this;
-  }
-
-  /**
-   * Appends the specified dependency to the array of dependencies registered against the given key.
-   * @param key The key of the dependencies
-   * @param clazz A reference to the class (for auto-wiring)
-   */
-  add<T>(key: string, clazz: Newable<T>): ServiceCollection {
-    let dependency = this.values[key] as ArrayDependency<T>;
-    if (typeof dependency === 'undefined') {
-      dependency = this.values[key] = new ArrayDependency<T>(key);
-    }
-
-    dependency.push(clazz);
-    return this;
-  }
-
-  /**
-   * Appends the specified dependency to the array of dependencies registered against the given key.
-   * @param key The key of the dependencies.
-   * @param value Value (or value factory) for resolving the dependency.
-   */
-  addDependency<T>(key: string, value: T | ValueFactoryDelegate<T>): ServiceCollection {
-    let dependency = this.values[key] as ArrayDependency<T>;
-    if (typeof dependency === 'undefined') {
-      dependency = this.values[key] = new ArrayDependency<T>(key);
-    }
-
-    dependency.register(value);
-    return this;
-  }
-
-  /**
-   * Registers an auto-wired dependency for the given key.
-   * @param key The key of the dependency.
-   * @param clazz The class to auto-wire.
-   */
-  use<T>(key: string, clazz: Newable<T>): ServiceCollection {
-    return this.register(key, createAutoResolvingFactory<T>(clazz));
   }
 
   /**
@@ -150,6 +105,60 @@ export class ServiceCollection {
     } finally {
       container.dispose();
     }
+  }
+
+  // TODO -- New functions go here
+
+  // LEGACY REGISTRATION
+  /**
+   * Register the specified key
+   * @param key The key of the dependency
+   * @param value Value (or value factory) for resolving the dependency
+   */
+  register<T>(key: string, value: T): ServiceCollection;
+  register<T>(key: string, value: ValueFactoryDelegate<T>): ServiceCollection;
+  register<T>(key: string, value: T | ValueFactoryDelegate<T>): ServiceCollection {
+    this.values[key] = new ConfiguredDependency<T>(key, value);
+    return this;
+  }
+
+  /**
+   * Appends the specified dependency to the array of dependencies registered against the given key.
+   * @param key The key of the dependencies
+   * @param clazz A reference to the class (for auto-wiring)
+   */
+  add<T>(key: string, clazz: Newable<T>): ServiceCollection {
+    let dependency = this.values[key] as ArrayDependency<T>;
+    if (typeof dependency === 'undefined') {
+      dependency = this.values[key] = new ArrayDependency<T>(key);
+    }
+
+    dependency.push(clazz);
+    return this;
+  }
+
+  /**
+   * Appends the specified dependency to the array of dependencies registered against the given key.
+   * @param key The key of the dependencies.
+   * @param value Value (or value factory) for resolving the dependency.
+   */
+  addDependency<T>(key: string, value: T | ValueFactoryDelegate<T>): ServiceCollection {
+    let dependency = this.values[key] as ArrayDependency<T>;
+    if (typeof dependency === 'undefined') {
+      dependency = this.values[key] = new ArrayDependency<T>(key);
+    }
+
+    dependency.register(value);
+    return this;
+  }
+
+  /**
+   * Registers an auto-wired dependency for the given key.
+   * @param key The key of the dependency.
+   * @param clazz The class to auto-wire.
+   */
+  use<T>(key: string, clazz: Newable<T>): ServiceCollection {
+    return this.register(key, createAutoResolvingFactory<T>(clazz));
   }
 }
 
