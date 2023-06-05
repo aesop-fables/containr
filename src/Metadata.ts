@@ -7,12 +7,17 @@ import { IDependencyMetadata } from './Types';
 declare type Type = Object;
 
 // Let's only expose the 2nd gen/level of abstractions
-export function registerDependency(target: Type, dependencyKey: string, parameterIndex: number): void {
+export function registerDependency(
+  target: Type,
+  dependencyKey: string,
+  parameterIndex: number,
+  resolveFromContainer = true,
+): void {
   const metadata = getDependencyMetadata(target);
   metadata.push({
     dependencyKey,
     parameterIndex,
-    interceptors: new InterceptorChain(dependencyKey),
+    interceptors: new InterceptorChain(dependencyKey, resolveFromContainer),
   } as IDependencyMetadata);
 
   setDependencyMetadata(target, metadata);
@@ -33,11 +38,6 @@ export function interceptorChainFor<T = any>(constructor: Type, parameterIndex: 
 
   return dependency.interceptors as InterceptorChain<T>;
 }
-
-// Change injectMetadataKey
-// InterceptorChain per reflect-target. If it doesn't exist, create it and store it (function)
-
-// Then @inject becomes a registration of an interceptor
 
 export function inject(dependencyKey: string) {
   // eslint-disable-next-line @typescript-eslint/ban-types
