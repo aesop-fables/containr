@@ -7,6 +7,12 @@ export type ValueFactoryDelegate<T> = (provider: IServiceContainer) => T;
 
 export interface IServiceContainer extends Disposable {
   /**
+   * Creates a container by copying 1)the current configuration and 2) the previously resolved instances.
+   * @param provenance Moniker for the child container
+   * @param overrides Collection of service modules for registering services in the child container
+   */
+  createChildContainer(provenance: string, overrides?: IServiceModule[]): IServiceContainer;
+  /**
    * Retrieves/constructs the specified dependencies
    * @param key The service(s) to retrieve
    */
@@ -20,13 +26,11 @@ export interface IServiceContainer extends Disposable {
   get<T1, T2, T3, T4, T5, T6, T7, T8>(keys: string[]): [T1, T2, T3, T4, T5, T6, T7, T8];
   get<T1, T2, T3, T4, T5, T6, T7, T8, T9>(keys: string[]): [T1, T2, T3, T4, T5, T6, T7, T8, T9];
   get<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(keys: string[]): [T1, T2, T3, T4, T5, T6, T7, T8, T9, T10];
-
   /**
-   * Creates a container by copying 1)the current configuration and 2) the previously resolved instances.
-   * @param provenance Moniker for the child container
-   * @param overrides Collection of service modules for registering services in the child container
+   * Determines whether the specified dependency is registered
+   * @param key Key of the dependency to query
    */
-  createChildContainer(provenance: string, overrides?: IServiceModule[]): IServiceContainer;
+  has(key: string): boolean;
   /**
    * Instantiates the specified class by resolving any dependencies found in the constuctor (using the @inject decorator).
    * @param clazz The class to instantiate

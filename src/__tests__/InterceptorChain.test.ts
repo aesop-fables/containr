@@ -42,6 +42,24 @@ describe('InterceptorChain', () => {
     expect(result).toBe(message);
   });
 
+  test('No interceptors and should not resolve returns undefined', async () => {
+    const message = 'Test test test';
+    const key = 'my key';
+    const container = createContainer([
+      {
+        name: 'test',
+        configureServices(services) {
+          services.singleton<string>(key, message);
+        },
+      },
+    ]);
+
+    const chain = new InterceptorChain<string>(key, false);
+    const result = chain.resolve(container);
+
+    expect(result).toBeUndefined();
+  });
+
   test('override the container with single interceptor', async () => {
     const message = 'Test test test';
     const override = 'TEST TEST TEST';

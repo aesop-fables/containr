@@ -252,6 +252,10 @@ export class ServiceContainer implements IServiceContainer {
     this.values = values;
   }
 
+  has(key: string): boolean {
+    return typeof this.values[key] !== 'undefined';
+  }
+
   resolve<T>(clazz: Newable<T>): T {
     const factory = createAutoResolvingFactory(clazz);
     return factory(this);
