@@ -1,26 +1,24 @@
-import { IServiceContainer } from './IServiceContainer';
+import { IServiceContainer } from '.';
 import { IInterceptor } from './Interceptors';
 import { createConstructorDecorator } from './Internals';
 import { interceptorChainFor, registerDependency } from './Metadata';
-import { Stack } from './Stack';
 
 export function injectArray(key: string) {
   // eslint-disable-next-line @typescript-eslint/ban-types
   return createConstructorDecorator(({ constructor, parameterIndex }) => {
-    registerDependency(constructor, key, parameterIndex);
+    registerDependency(constructor, key, parameterIndex, false);
     const chain = interceptorChainFor(constructor, parameterIndex);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    chain.add(new ArrayDependencyInterceptor<any>());
+    chain.add(new ArrayDependencyInterceptor<any>(key));
   });
 }
 
 export class ArrayDependencyInterceptor<T> implements IInterceptor<T[]> {
-  resolve(currentValue: T[] | undefined, _container: IServiceContainer, errors: Stack<Error>): T[] {
-    if (errors.size() !== 0) {
-      errors.pop();
+  constructor(private readonly key: string) {}
+  resolve(currentValue: T[] | undefined, container: IServiceContainer): T[] {
+    if (!container.has(this.key)) {
       return [];
     }
-
-    return currentValue as T[];
+    return container.get<T[]>(this.key);
   }
 }
