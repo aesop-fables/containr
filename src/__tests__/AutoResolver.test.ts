@@ -15,6 +15,10 @@ class ArrayInjectionSample {
   constructor(@injectArray(arrayKey) readonly values: string[]) {}
 }
 
+class CustomArgsSample {
+  constructor(@injectContainer() private readonly container: IServiceContainer, readonly other: string) {}
+}
+
 describe('AutoResolver', () => {
   test('Use the @injectContainer() decorator', async () => {
     const message = 'Test test test';
@@ -47,5 +51,12 @@ describe('AutoResolver', () => {
     );
     const sample = AutoResolver.resolve(ArrayInjectionSample, container);
     expect(sample.values).toEqual([item1, item2]);
+  });
+
+  test('Passes args', async () => {
+    const container = createContainer([]);
+    const other = 'blah';
+    const sample = AutoResolver.resolve(CustomArgsSample, container, other);
+    expect(sample.other).toBe(other);
   });
 });
