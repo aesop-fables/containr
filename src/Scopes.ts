@@ -1,4 +1,3 @@
-import { ServiceCollection } from '.';
 import { IDependency } from './Dependencies';
 import { IServiceContainer } from './IServiceContainer';
 import { safeDispose } from './Internals';
@@ -9,17 +8,6 @@ export enum Scopes {
   Transient,
   Unique,
 }
-
-const key = 'blah';
-const services = new ServiceCollection();
-// services.factory(key, () => 'test', Scopes.Transient);
-services.factory(key, () => 'test', Scopes.Singleton);
-
-const root = services.buildContainer();
-const child1 = root.createChildContainer('test');
-const message = child1.get<string>(key);
-const message2 = root.get<string>(key);
-
 
 export interface IScopedDependency<T> {
   dependency: IDependency<T>;

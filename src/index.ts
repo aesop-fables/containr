@@ -13,6 +13,3 @@ export * from './Modules';
 export * from './Scopes';
 export * from './Stack';
 export * from './Types';
-
-// sharp tools, friends
-export * as Internals from './Internals';
