@@ -1,4 +1,14 @@
-import { createContainer, IInterceptor, InterceptorChain, IServiceContainer, Stack } from '..';
+import 'reflect-metadata';
+import {
+  createContainer,
+  IInterceptor,
+  inject,
+  InterceptorChain,
+  IServiceContainer,
+  Scopes,
+  ServiceCollection,
+  Stack,
+} from '..';
 
 class UpperCaseInterceptor implements IInterceptor<string> {
   resolve(currentValue: string | undefined): string {
@@ -125,5 +135,33 @@ describe('InterceptorChain', () => {
     const result = chain.resolve(container);
 
     expect(result).toBe('THE DEFAULT');
+  });
+
+  test('Circular dependency error is wrapped', () => {
+    const key1 = 'key1';
+    const key2 = 'key2';
+    const key3 = 'key3';
+
+    class Transitive {
+      constructor(@inject(key1) private readonly error: Error) {}
+    }
+
+    class Dependency {
+      constructor(@inject(key3) private readonly transitive: Transitive) {}
+    }
+
+    class Service {
+      constructor(@inject(key2) private readonly dependency: Dependency) {}
+    }
+
+    const services = new ServiceCollection();
+    services.autoResolve(key1, Service, Scopes.Transient);
+    services.autoResolve(key2, Dependency, Scopes.Transient);
+    services.autoResolve(key3, Transitive, Scopes.Transient);
+
+    const container = services.buildContainer();
+
+    const chain = new InterceptorChain<string>(key1, true);
+    expect(() => chain.resolve(container)).toThrowError(/Circular dependency detected/g);
   });
 });

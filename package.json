@@ -1,6 +1,6 @@
 {
   "name": "@aesop-fables/containr",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Inversion of Control container for Typescript",
   "type": "commonjs",
   "exports": {
@@ -26,13 +26,13 @@
     "@types/jest": "^29.2.4",
     "@types/node": "^18.11.11",
     "@typescript-eslint/eslint-plugin": "^5.45.1",
-    "@typescript-eslint/parser": "5.45.0",
-    "esbuild": "^0.17.8",
+    "@typescript-eslint/parser": "5.62.0",
+    "esbuild": "^0.18.17",
     "eslint": "8.34.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jest": "27.1.6",
     "eslint-plugin-prettier": "^4.2.1",
-    "jest": "29.3.1",
+    "jest": "29.6.1",
     "prettier": "^2.8.1",
     "ts-jest": "29.0.1",
     "typescript": "4.9.3"
