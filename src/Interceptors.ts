@@ -8,7 +8,7 @@ export interface IInterceptor<T> {
 class ResolveFromContainerInterceptor<T> implements IInterceptor<T> {
   constructor(private readonly key: string) {}
 
-  resolve(currentValue: T | undefined, container: IServiceContainer): T {
+  resolve(_currentValue: T | undefined, container: IServiceContainer): T {
     return container.get<T>(this.key);
   }
 }
@@ -39,7 +39,12 @@ export class InterceptorChain<T = any> {
     }
 
     if (errors.size() !== 0) {
-      throw errors.peek();
+      const error = errors.peek();
+      if (error?.message && /call\s+stack\s+size/gi.test(error?.message)) {
+        throw new Error(`Circular dependency detected while resolving ${this.key}`);
+      }
+
+      throw new Error(`Error resolving "${this.key}".\n${error?.message}`);
     }
 
     return currentValue as T;
