@@ -48,6 +48,10 @@ export class SingletonScope<T> extends TransientScope<T> {
   clone(): IScopedDependency<T> {
     return this;
   }
+
+  destroy(): void {
+    // no-op
+  }
 }
 
 export class UniqueScope<T> implements IScopedDependency<T> {
