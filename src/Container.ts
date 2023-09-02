@@ -46,7 +46,7 @@ export class ServiceCollection {
    * Creates an implementation of IServiceContainer with all of the configured dependencies.
    * @returns The configured container.
    */
-  buildContainer(): ServiceContainer {
+  buildContainer(): IServiceContainer {
     return new ServiceContainer({
       ...this.values,
       [ContainerKey]: new UniqueScope(new ContainerDependency()),
