@@ -104,11 +104,15 @@ const defaultOptions: BootstrapOptions = {
  * @returns An instance of IServiceContainer bootstrapped from the specified modules.
  */
 export function createContainer(
-  modules: IServiceModule[],
+  modules: IServiceModule[] | ServiceModuleMiddleware,
   options: BootstrapOptions = defaultOptions,
 ): IServiceContainer {
   const services = new ServiceCollection();
-  modules.forEach((module) => module.configureServices(services));
+  if (Array.isArray(modules)) {
+    modules.forEach((module) => module.configureServices(services));
+  } else {
+    modules(services);
+  }
 
   const container = services.buildContainer();
   if (options.runActivators && services.isRegistered(BootstrappingServices.Activators)) {
