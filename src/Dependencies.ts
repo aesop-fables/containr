@@ -12,7 +12,10 @@ export interface IDependency<T> {
 export class ValueFactoryDependency<T> implements IDependency<T> {
   factory: ValueFactoryDelegate<T>;
 
-  constructor(readonly key: string, value: T | ValueFactoryDelegate<T>) {
+  constructor(
+    readonly key: string,
+    value: T | ValueFactoryDelegate<T>,
+  ) {
     if (typeof value === 'function') {
       this.factory = value as ValueFactoryDelegate<T>;
     } else {
@@ -40,7 +43,10 @@ export class ValueFactoryDependency<T> implements IDependency<T> {
 export class ArrayDependency<T> implements IDependency<T[]> {
   private resolved = false;
 
-  constructor(readonly key: string, private readonly values: IDependency<T>[] = []) {}
+  constructor(
+    readonly key: string,
+    private readonly values: IDependency<T>[] = [],
+  ) {}
 
   isResolved(): boolean {
     return this.resolved;

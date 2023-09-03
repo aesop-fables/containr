@@ -465,7 +465,10 @@ interface IService {
 }
 
 class StubActivator implements IActivator {
-  constructor(@inject('one') private readonly service: IService, @inject('two') private readonly policies: IPolicy[]) {}
+  constructor(
+    @inject('one') private readonly service: IService,
+    @inject('two') private readonly policies: IPolicy[],
+  ) {}
 
   activate(): void {
     this.service.execute();
