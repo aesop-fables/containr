@@ -33,6 +33,14 @@ describe('Bootstrapping', () => {
       expect(container.get<MyServiceModule>(key).name).toBe(key);
     });
 
+    test('Executes the middleware rather than the modules', () => {
+      const expected = { key: 'test', value: 'Hello, World!' };
+      const container = createContainer((services) => services.singleton(expected.key, expected.value));
+      const actual = container.get<string>(expected.key);
+
+      expect(actual).toEqual(expected.value);
+    });
+
     test('Runs the activators when setting is true', () => {
       const testModule = createServiceModule('test', (services) => {
         services.add<IActivator>(BootstrappingServices.Activators, TestActivator);
