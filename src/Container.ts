@@ -248,7 +248,11 @@ export class ServiceCollection {
 export class ServiceContainer implements IServiceContainer {
   private readonly values: Record<string, IScopedDependency<any>>;
 
-  constructor(values: Record<string, any>, private parent?: IServiceContainer, private provenance?: string) {
+  constructor(
+    values: Record<string, any>,
+    private parent?: IServiceContainer,
+    private provenance?: string,
+  ) {
     this.values = values;
   }
 

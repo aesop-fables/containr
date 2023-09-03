@@ -17,7 +17,10 @@ class ResolveFromContainerInterceptor<T> implements IInterceptor<T> {
 export class InterceptorChain<T = any> {
   private readonly interceptors: IInterceptor<T>[] = [];
 
-  constructor(private readonly key: string, private readonly resolveFromContainer: boolean = true) {
+  constructor(
+    private readonly key: string,
+    private readonly resolveFromContainer: boolean = true,
+  ) {
     if (this.resolveFromContainer) {
       this.add(new ResolveFromContainerInterceptor<T>(this.key));
     }

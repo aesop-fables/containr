@@ -16,7 +16,10 @@ class ArrayInjectionSample {
 }
 
 class CustomArgsSample {
-  constructor(@injectContainer() private readonly container: IServiceContainer, readonly other: string) {}
+  constructor(
+    @injectContainer() private readonly container: IServiceContainer,
+    readonly other: string,
+  ) {}
 }
 
 describe('AutoResolver', () => {
