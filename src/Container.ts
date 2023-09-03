@@ -46,7 +46,7 @@ export class ServiceCollection {
    * Creates an implementation of IServiceContainer with all of the configured dependencies.
    * @returns The configured container.
    */
-  buildContainer(): ServiceContainer {
+  buildContainer(): IServiceContainer {
     return new ServiceContainer({
       ...this.values,
       [ContainerKey]: new UniqueScope(new ContainerDependency()),
@@ -54,7 +54,7 @@ export class ServiceCollection {
   }
 
   /**
-   * Whether the key has been registered.
+   * Whether the key has been r=egistered.
    * @param key The dependency to query for.
    * @returns Whether the key has been registered.
    */
@@ -86,7 +86,7 @@ export class ServiceCollection {
    * Runs the specified registry and imports the configured dependencies.
    * @param registry The registry to import.
    */
-  include(registry: IServiceRegistry): void {
+  include(registry: IServiceRegistry | IServiceModule): void {
     const services = new ServiceCollection();
     registry.configureServices(services);
 

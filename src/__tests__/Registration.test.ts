@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Scopes, inject } from '..';
+import { IServiceRegistry, Scopes, ServiceCollection, createServiceModule, inject } from '..';
 import { buildContainer } from './utils';
 
 const key = '@aesop-fables/containr/test';
@@ -132,6 +132,48 @@ describe('Registration', () => {
 
         expect(example.counter.count).toBe(0);
       });
+    });
+  });
+
+  describe('include', () => {
+    test('include a registry', () => {
+      const key = 'test-key';
+
+      class SampleRegistry implements IServiceRegistry {
+        configureServices(services: ServiceCollection): void {
+          services.singleton(key, 'Hello, World!');
+        }
+      }
+
+      const services = new ServiceCollection();
+      services.include(new SampleRegistry());
+
+      const container = services.buildContainer();
+      const message = container.get<string>(key);
+
+      expect(message).toEqual('Hello, World!');
+    });
+
+    test('include a service module', () => {
+      const key = 'test-key';
+
+      const sampleModule = createServiceModule('test', (services) => {
+        services.singleton(key, 'Hello, World!');
+      });
+
+      class SampleRegistry implements IServiceRegistry {
+        configureServices(services: ServiceCollection): void {
+          services.include(sampleModule);
+        }
+      }
+
+      const services = new ServiceCollection();
+      services.include(new SampleRegistry());
+
+      const container = services.buildContainer();
+      const message = container.get<string>(key);
+
+      expect(message).toEqual('Hello, World!');
     });
   });
 });
