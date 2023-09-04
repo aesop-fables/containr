@@ -10,6 +10,9 @@ npm install @aesop-fables/containr
 yarn add @aesop-fables/containr
 ```
 
+## Docs
+Our [docs](https://github.com/aesop-fables/containr) our hosted on [gitbook](https://github.com/aesop-fables/containr). 
+
 ## Usage
 By and large, you really only do two kinds of things with `containr`:
 
