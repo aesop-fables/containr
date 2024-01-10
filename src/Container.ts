@@ -243,6 +243,14 @@ export class ServiceCollection {
   use<T>(key: string, clazz: Newable<T>): ServiceCollection {
     return this.push(key, new ValueFactoryDependency<T>(key, createAutoResolvingFactory<T>(clazz)), Scopes.Transient);
   }
+  /**
+   * Removes the specified key
+   * @param key The key of the dependency
+   */
+  remove(key: string): ServiceCollection {
+    delete this.values[key];
+    return this;
+  }
 }
 
 export class ServiceContainer implements IServiceContainer {
@@ -258,6 +266,11 @@ export class ServiceContainer implements IServiceContainer {
 
   has(key: string): boolean {
     return typeof this.values[key] !== 'undefined';
+  }
+
+  configure(configure: (services: ServiceCollection) => void) {
+    const services = new ServiceCollection(this.values);
+    configure(services);
   }
 
   resolve<T>(clazz: Newable<T>): T {
