@@ -46,9 +46,8 @@
   "files": [
     "lib/**/*"
   ],
-  "dependencies": {
-    "jest-mock-extended": "^3.0.1",
-    "reflect-metadata": "^0.1.13"
+  "peerDdependencies": {
+    "reflect-metadata": "0.1.x"
   },
   "jest-junit": {
     "outputDirectory": "reports",
