@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { IServiceContainer, IServiceRegistry, Scopes, ServiceCollection, ServiceContainer, createServiceModule, inject } from '..';
+import { IServiceRegistry, Scopes, ServiceCollection, ServiceContainer, createServiceModule, inject } from '..';
 import { buildContainer } from './utils';
 
 const key = '@aesop-fables/containr/test';
@@ -9,20 +9,24 @@ describe('ServiceContainer', () => {
   describe('configure', () => {
     test('resets a dependency that has yet to be resolved', () => {
       const value = 'test it';
-      const container = buildContainer((services) => services.factory<string>(key, () => value, Scopes.Singleton)) as ServiceContainer;
+      const container = buildContainer((services) =>
+        services.factory<string>(key, () => value, Scopes.Singleton),
+      ) as ServiceContainer;
 
       const newValue = 'change it';
-      container.configure((services) => services.factory<string>(key, () => newValue, Scopes.Singleton))
+      container.configure((services) => services.factory<string>(key, () => newValue, Scopes.Singleton));
       expect(container.get<string>(key)).toBe(newValue);
     });
 
     test('resets a dependency that has been resolved', () => {
       const value = 'test it';
-      const container = buildContainer((services) => services.factory<string>(key, () => value, Scopes.Singleton)) as ServiceContainer;
+      const container = buildContainer((services) =>
+        services.factory<string>(key, () => value, Scopes.Singleton),
+      ) as ServiceContainer;
       expect(container.get<string>(key)).toBe(value);
 
       const newValue = 'change it';
-      container.configure((services) => services.factory<string>(key, () => newValue, Scopes.Singleton))
+      container.configure((services) => services.factory<string>(key, () => newValue, Scopes.Singleton));
       expect(container.get<string>(key)).toBe(newValue);
     });
 
@@ -33,7 +37,7 @@ describe('ServiceContainer', () => {
       const childContainer = container.createChildContainer('temp') as ServiceContainer;
 
       const newValue = 'change it';
-      childContainer.configure((services) => services.factory<string>(key, () => newValue, Scopes.Singleton))
+      childContainer.configure((services) => services.factory<string>(key, () => newValue, Scopes.Singleton));
       expect(childContainer.get<string>(key)).toBe(newValue);
     });
 
@@ -43,7 +47,7 @@ describe('ServiceContainer', () => {
       const childContainer = container.createChildContainer('temp') as ServiceContainer;
 
       const newValue = 'change it';
-      childContainer.configure((services) => services.factory<string>(key, () => newValue, Scopes.Singleton))
+      childContainer.configure((services) => services.factory<string>(key, () => newValue, Scopes.Singleton));
       expect(childContainer.get<string>(key)).toBe(newValue);
     });
   });
