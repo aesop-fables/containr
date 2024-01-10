@@ -39,15 +39,28 @@ export function interceptorChainFor<T = any>(constructor: Type, parameterIndex: 
   return dependency.interceptors as InterceptorChain<T>;
 }
 
-export function inject(dependencyKey: string) {
+export declare type InterceptorDecorator = <T>(chain: InterceptorChain<T>) => void;
+
+export function createInterceptingDecorator(modifyChain: InterceptorDecorator, dependencyKey?: string) {
   // eslint-disable-next-line @typescript-eslint/ban-types
   return (target: Type, _propertyKey: string | symbol | undefined, parameterIndex: number): void => {
-    registerDependency(target, dependencyKey, parameterIndex);
+    if (dependencyKey) {
+      registerDependency(target, dependencyKey, parameterIndex);
+    }
+
+    const chain = interceptorChainFor(target, parameterIndex);
+    modifyChain(chain);
   };
 }
 
+export function inject(dependencyKey: string) {
+  return createInterceptingDecorator(() => {
+    // no-op
+  }, dependencyKey);
+}
+
 export function injectContainer() {
-  return (target: Type, _propertyKey: string | symbol | undefined, parameterIndex: number): void => {
-    registerDependency(target, ContainerKey, parameterIndex);
-  };
+  return createInterceptingDecorator(() => {
+    // no-op
+  }, ContainerKey);
 }
