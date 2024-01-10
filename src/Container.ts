@@ -251,7 +251,7 @@ export class ServiceContainer implements IServiceContainer {
   constructor(
     values: Record<string, any>,
     private parent?: IServiceContainer,
-    private provenance?: string,
+    readonly provenance?: string,
   ) {
     this.values = values;
   }
