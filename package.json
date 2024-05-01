@@ -24,30 +24,29 @@
     "postversion": "git push && git push --tags"
   },
   "devDependencies": {
-    "@types/jest": "^29.4.0",
-    "@types/node": "^20.8.3",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.12.7",
     "@typescript-eslint/eslint-plugin": "^5.45.1",
     "@typescript-eslint/parser": "5.62.0",
-    "esbuild": "^0.17.15",
     "eslint": "8.42.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jest": "27.4.2",
     "eslint-plugin-prettier": "5.0.0",
-    "jest": "29.5.0",
-    "jest-environment-jsdom": "^29.3.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "jest-junit": "^16.0.0",
-    "jest-mock-extended": "^3.0.1",
+    "jest-mock-extended": "^3.0.6",
     "prettier": "^3.0.3",
-    "reflect-metadata": "^0.1.13",
-    "ts-jest": "29.1.1",
-    "typedoc": "^0.25.2",
-    "typescript": "4.9.5"
+    "reflect-metadata": "^0.2.2",
+    "ts-jest": "^29.1.2",
+    "typedoc": "^0.25.13",
+    "typescript": "^5.4.5"
   },
   "files": [
     "lib/**/*"
   ],
-  "peerDdependencies": {
-    "reflect-metadata": "0.1.x"
+  "peerDependencies": {
+    "reflect-metadata": ">= 0.1.x"
   },
   "jest-junit": {
     "outputDirectory": "reports",
