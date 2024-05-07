@@ -1,6 +1,6 @@
 import { ContainerKey } from './Constants';
 import { InterceptorChain } from './Interceptors';
-import { getDependencyMetadata, setDependencyMetadata } from './Internals';
+import { ConstructorDecorator, getDependencyMetadata, setDependencyMetadata } from './Internals';
 import { IDependencyMetadata } from './Types';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -63,4 +63,20 @@ export function injectContainer() {
   return createInterceptingDecorator(() => {
     // no-op
   }, ContainerKey);
+}
+
+type TypeDescriptor = string | ConstructorDecorator;
+
+export function injectDependencies(descriptors: TypeDescriptor[]) {
+  return (target: Type) => {
+    for (let i = 0; i < descriptors.length; i++) {
+      const descriptor = descriptors[i];
+      if (typeof descriptor === 'string') {
+        registerDependency(target, descriptor, i);
+        continue;
+      }
+
+      descriptor(target, undefined, i);
+    }
+  };
 }
