@@ -40,6 +40,21 @@ export class ValueFactoryDependency<T> implements IDependency<T> {
   }
 }
 
+export class SingletonDependency<T> implements IDependency<T> {
+  constructor(
+    readonly key: string,
+    private readonly value: T,
+  ) {}
+
+  resolveValue(): T {
+    return this.value;
+  }
+
+  clone(): IDependency<T> {
+    return this;
+  }
+}
+
 export class ArrayDependency<T> implements IDependency<T[]> {
   private resolved = false;
 
