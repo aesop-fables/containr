@@ -7,6 +7,7 @@ import {
   ValueFactoryDependency,
   ArrayDependency,
   ContainerDependency,
+  SingletonDependency,
 } from './Dependencies';
 import { IServiceContainer, ValueFactoryDelegate } from './IServiceContainer';
 import { IServiceModule } from './Modules';
@@ -122,7 +123,7 @@ export class ServiceCollection {
    * @param value Value to be used.
    */
   singleton<T>(key: string, value: T): ServiceCollection {
-    return this.push(key, new ValueFactoryDependency<T>(key, value), Scopes.Singleton);
+    return this.push(key, new SingletonDependency<T>(key, value), Scopes.Singleton);
   }
   /**
    * Appends the value (or factory) to the specified array dependency.
