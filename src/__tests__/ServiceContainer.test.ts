@@ -59,6 +59,22 @@ describe('ServiceContainer', () => {
       expect(container.get<string>(key)).toBe(value);
       expect(container.get<string>(key)).toBe(value);
     });
+
+    test('register and resolve a function', () => {
+      let nrInvocations = 0;
+      const container = buildContainer((services) =>
+        services.singleton(key, () => {
+          ++nrInvocations;
+        }),
+      );
+
+      container.get<() => void>(key);
+      container.get<() => void>(key);
+      const func = container.get<() => void>(key);
+      func();
+
+      expect(nrInvocations).toBe(1);
+    });
   });
 
   describe('array', () => {

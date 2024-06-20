@@ -1,13 +1,5 @@
 import 'reflect-metadata';
-import {
-  AutoResolver,
-  ContainerKey,
-  createContainer,
-  injectArray,
-  injectContainer,
-  injectDependencies,
-  IServiceContainer,
-} from '..';
+import { AutoResolver, createContainer, injectArray, injectContainer, IServiceContainer } from '..';
 import { buildContainer } from './utils';
 
 class ContainerInjectionSample {
