@@ -81,7 +81,7 @@ jobs:
         run: yarn install
 
       - name: Build
-        run: yarn build
+        run: ./build.sh
 
       - name: Test
         id: test
