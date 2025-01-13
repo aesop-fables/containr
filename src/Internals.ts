@@ -1,18 +1,18 @@
-/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-wrapper-object-types */
 import { IDependencyMetadata } from './Types';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+ 
 declare type Type = Object;
 
 export const metadataKey = Symbol('@aesop-fables/containr/metadata');
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+ 
 export const getDependencyMetadata = (constructor: Type) => {
   const metadata = (Reflect.getMetadata(metadataKey, constructor) || []) as IDependencyMetadata[];
   return metadata;
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+ 
 export const setDependencyMetadata = (target: Type, metadata: IDependencyMetadata[]) => {
   Reflect.defineMetadata(metadataKey, metadata, target);
 };
@@ -29,14 +29,14 @@ export function safeDispose(value: any) {
 }
 
 export declare type ConstructorDecorator = (
-  // eslint-disable-next-line @typescript-eslint/ban-types
+   
   constructor: Object,
   propertyKey: string | symbol | undefined,
   parameterIndex: number,
 ) => void;
 
 export interface ConstructorDecoratorParams {
-  // eslint-disable-next-line @typescript-eslint/ban-types
+   
   constructor: Object;
   propertyKey?: string | symbol;
   parameterIndex: number;

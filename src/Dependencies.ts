@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { ContainerKey } from './Constants';
 import { createAutoResolvingFactory } from './createAutoResolvingFactory';
 import { IServiceContainer, ValueFactoryDelegate } from './IServiceContainer';

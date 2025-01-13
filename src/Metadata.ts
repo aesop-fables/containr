@@ -3,7 +3,7 @@ import { InterceptorChain } from './Interceptors';
 import { ConstructorDecorator, getDependencyMetadata, setDependencyMetadata } from './Internals';
 import { IDependencyMetadata } from './Types';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
 declare type Type = Object;
 
 // Let's only expose the 2nd gen/level of abstractions
@@ -28,7 +28,7 @@ function findDependency(constructor: Type, parameterIndex: number) {
   return metadata.find((x) => x.parameterIndex === parameterIndex);
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function interceptorChainFor<T = any>(constructor: Type, parameterIndex: number) {
   let dependency = findDependency(constructor, parameterIndex);
   if (!dependency) {
@@ -42,7 +42,7 @@ export function interceptorChainFor<T = any>(constructor: Type, parameterIndex: 
 export declare type InterceptorDecorator = <T>(chain: InterceptorChain<T>) => void;
 
 export function createInterceptingDecorator(modifyChain: InterceptorDecorator, dependencyKey?: string) {
-  // eslint-disable-next-line @typescript-eslint/ban-types
+   
   return (target: Type, _propertyKey: string | symbol | undefined, parameterIndex: number): void => {
     if (dependencyKey) {
       registerDependency(target, dependencyKey, parameterIndex);

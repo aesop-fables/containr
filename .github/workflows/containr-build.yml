@@ -80,6 +80,9 @@ jobs:
       - name: Restore
         run: yarn install
 
+      - name: Line
+        run: yarn lint
+
       - name: Build
         run: ./build.sh
 

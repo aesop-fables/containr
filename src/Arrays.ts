@@ -4,7 +4,7 @@ import { createConstructorDecorator } from './Internals';
 import { interceptorChainFor, registerDependency } from './Metadata';
 
 export function injectArray(key: string) {
-  // eslint-disable-next-line @typescript-eslint/ban-types
+   
   return createConstructorDecorator(({ constructor, parameterIndex }) => {
     registerDependency(constructor, key, parameterIndex, false);
     const chain = interceptorChainFor(constructor, parameterIndex);

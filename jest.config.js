@@ -6,7 +6,7 @@ if (CI) {
   reporters.push('jest-junit');
 }
 
-// eslint-disable-next-line no-undef
+ 
 module.exports = {
   reporters,
   transform: {

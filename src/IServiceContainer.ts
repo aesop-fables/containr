@@ -2,7 +2,7 @@ import { Disposable } from './Disposable';
 import { IServiceModule } from './Modules';
 import { Newable } from './Types';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 export type ValueFactoryDelegate<T> = (provider: IServiceContainer) => T;
 
 export interface IServiceContainer extends Disposable {
